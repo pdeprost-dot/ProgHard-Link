@@ -16,8 +16,10 @@ For remote access use **My devices → Open**, not a direct wildcard URL. See
 
 Device Manager is the small administrative layer above the ESPway tunnel. It
 uses the existing live `DeviceRegistry` and the persistent allowlist in
-`data/devices.json`; it does not introduce a database or change device
-firmware.
+`data/devices.json`; device authorization and pairing retain that architecture,
+and Device Manager does not change device firmware. Human accounts, sessions,
+device ownership relationships and Personal API Tokens are stored separately
+in SQLite as described in [Authentication and multi-user V1](authentication.md).
 
 ## Deployment boundary
 

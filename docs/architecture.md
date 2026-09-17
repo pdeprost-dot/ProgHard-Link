@@ -18,7 +18,7 @@ ports 80 and 443, while the Node service remains reachable only on the private
 Compose network. The apex hostname needs its own DNS record because a wildcard
 record does not cover the apex itself.
 
-ProgHard Link is local-first. The ESP8266 owns its HTTP interface and application
+ProgHard Link is local-first. The device owns its HTTP interface and application
 routes; LAN access therefore continues without Internet or a ProgHard Link server.
 
 For remote access the device opens one outbound WebSocket connection to
@@ -46,7 +46,8 @@ are introduced.
 `firmware-repository` is the single filesystem source of truth for firmware.
 Each artifact is addressed by hardware, application and application version,
 then verified by its immutable size and SHA-256. The model is hardware-neutral;
-ESP8266 is the only current value, without being embedded in registry logic.
+the current public registry contains ESP8266, ESP32 and ESP32-C3 artifacts,
+without embedding those values in registry logic.
 
 The Node server exposes read-only release metadata and explicit firmware files.
 The Web Installer manifest is derived from the ProgHard Link Base registry manifest.

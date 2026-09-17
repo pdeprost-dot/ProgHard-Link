@@ -10,6 +10,15 @@ The first public baseline is ProgHard Link Base 0.2.3 with Arduino library
 `ESPWAY_*`, `ESPway.h`, `espway-base` and `espway-tunnel/2` remain stable for
 compatibility.
 
+## Published versions
+
+| Component | Version |
+| --- | --- |
+| Server | `0.5.0` |
+| ProgHard Link Base | `0.2.3` |
+| Arduino library | `0.4.8` |
+| Tunnel protocol | `espway-tunnel/2` |
+
 ## Start here
 
 - [Getting Started](docs/getting-started.md)

@@ -3,7 +3,7 @@
 This matrix records the supported target for each example. A dash means the
 example is intentionally platform-specific, not that the ESPway core lacks
 support for that platform. Compilation was repeated with ESP8266 core 3.1.2
-and ESP32 core 3.3.6 on the profiles shown below.
+and ESP32 core 3.3.11 on the profiles shown below.
 
 | Example | ESP8266 | ESP32-C3 | Hardware status | Role |
 | --- | --- | --- | --- | --- |
@@ -20,7 +20,7 @@ and ESP32 core 3.3.6 on the profiles shown below.
 ## Profiles and dependencies
 
 - ESP8266: NodeMCU 1.0 (`esp8266:esp8266:nodemcuv2`), core 3.1.2.
-- ESP32: ESP32C3 Dev Module, core 3.3.6, Minimal SPIFFS partition.
+- ESP32: ESP32C3 Dev Module, core 3.3.11, Minimal SPIFFS partition.
 - All ESPway network examples: ArduinoJson 7.4.2, WebSockets 2.7.2 and
   PubSubClient 2.8 or compatible later releases.
 - DHT examples: DHT sensor library 1.4.7 and Adafruit Unified Sensor 1.1.15.

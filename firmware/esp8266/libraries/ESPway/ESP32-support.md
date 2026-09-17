@@ -4,13 +4,17 @@ ESPway supports the Arduino ESP8266 and ESP32 cores through
 `src/ESPwayPlatform.h`. The common framework keeps the same configuration
 format, HTTP routes and tunnel v2 protocol on both platforms.
 
-## Validated platforms
+## Published and validated platforms
 
-| Platform | Arduino core | Arduino board profile | Status |
-| --- | --- | --- | --- |
-| ESP8266 | 3.1.2 | NodeMCU 1.0 (ESP-12E Module) | ESP8266 examples compile |
-| ESP32-C3 | 3.3.11 | ESP32C3 Dev Module | ESPway, MQTT, Polar BLE/PMD, HTTP/WAN and MQTT ECG validated on hardware |
-| ESP32 | 3.3.11 | ESP32 Dev Module | ESPway and AES-GCM compile validation |
+Published means that the Firmware Registry contains an official ProgHard Link
+Base artifact for the target. Compile validation and physical hardware
+validation are recorded separately and should not be treated as equivalent.
+
+| Platform | Arduino core | Arduino board profile | Published Base | Compile validation | Hardware validation documented in this repository |
+| --- | --- | --- | --- | --- | --- |
+| ESP8266 | 3.1.2 | NodeMCU 1.0 (ESP-12E Module) | Yes | ESP8266 examples | Previously exercised on ESP8266 |
+| ESP32-C3 | 3.3.11 | ESP32C3 Dev Module | Yes | ESPway and supported ESP32 examples | ESPway, MQTT, Polar BLE/PMD, HTTP/WAN and MQTT ECG |
+| ESP32 | 3.3.11 | ESP32 Dev Module | Yes | ESPway and AES-GCM | None documented |
 
 For the tested 4 MB ESP32-C3, select **Minimal SPIFFS (1.9 MB APP with
 OTA/128 KB SPIFFS)**. The complete framework is larger than the 1.25 MB
@@ -23,8 +27,9 @@ Required Arduino libraries remain:
 - WebSockets 2.7.2 or later
 - PubSubClient 2.8 or later
 
-Open `examples/ESPwayBaseESP32/ESPwayBaseESP32.ino` in Arduino IDE for the
-minimal ESP32-C3 validation application. Its serial speed is 115200 baud.
+Open `examples/ProgHardLinkBaseESP32/ProgHardLinkBaseESP32.ino` in Arduino IDE
+for the minimal ESP32-C3 validation application. Its serial speed is 115200
+baud.
 
 ## Compatibility inventory
 

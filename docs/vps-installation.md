@@ -74,14 +74,13 @@ After the public repository exists:
 
 ```bash
 sudo install -d -o "$USER" -g "$USER" /opt/proghard-link
-git clone https://github.com/OWNER/ProgHard-Link.git /opt/proghard-link
+git clone https://github.com/pdeprost-dot/ProgHard-Link.git /opt/proghard-link
 cd /opt/proghard-link
 git status
 git rev-parse HEAD
 ```
 
-Use the actual published repository URL in place of `OWNER`. Do not embed a
-GitHub token in the clone URL or shell history.
+Do not embed a GitHub token in the clone URL or shell history.
 
 ## 5. Configure the instance
 

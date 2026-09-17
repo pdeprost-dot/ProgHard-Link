@@ -9,8 +9,9 @@
   service domains so enrollment is not coupled to the historical hostname.
 - Removed manual Device ID/token instructions and token inputs from the normal
   provisioning and Device Manager UX.
-- Prepared Arduino library 0.4.7 with accurate ESP8266, ESP32-C3 and ESP32
-  hardware identity in the authenticated device hello.
+- Prepared the Arduino library changes first staged as 0.4.7 and subsequently
+  published in 0.4.8, with accurate ESP8266, ESP32-C3 and ESP32 hardware
+  identity in the authenticated device hello.
 - Reserved the Base firmware root page for generic provisioning and enrollment;
   its demonstration application now lives under `/app`.
 - Bounded ESP8266 TLS buffers and suspended unauthenticated tunnel retries while
