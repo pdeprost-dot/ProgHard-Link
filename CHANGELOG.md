@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added the hardware-validated ESP32-C6 `ClockDemo` user application and
+  published Arduino library 0.4.10 without replacing the immutable 0.4.9
+  archive. The example provides a Waveshare LCD clock, NTP/manual time,
+  persistent configuration and LAN/remote `/clock` access.
 - Added ESP32-C6 as an officially built target, published the required
   hardware identity support in Arduino library 0.4.9, and validated the
   Waveshare ESP32-C6-Touch-LCD-1.47 without using its display or touch hardware.

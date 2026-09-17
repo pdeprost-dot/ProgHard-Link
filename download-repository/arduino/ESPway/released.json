@@ -10,6 +10,11 @@
       "file": "ProgHard-Link-0.4.9.zip",
       "size": 261324,
       "sha256": "0967796454f08de2f26bf0d93788a0469fa8f2e3fc989848bd07526e12655b9d"
+    },
+    "0.4.10": {
+      "file": "ProgHard-Link-0.4.10.zip",
+      "size": 279991,
+      "sha256": "d8ee989035410f1fa86fc13794cd348f8d91899ed7619f6bcf2075b14306a3f6"
     }
   }
 }

@@ -15,7 +15,7 @@ import {
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const sourceRoot = repositoryLibraryRoot(repositoryRoot);
-const currentVersion = "0.4.9";
+const currentVersion = "0.4.10";
 const releaseRoot = new URL(
   `download-repository/arduino/ESPway/${currentVersion}/`,
   new URL("../../", import.meta.url),
@@ -104,6 +104,7 @@ test("ZIP has one safe Arduino library root and required examples", async () => 
     "ProgHard-Link/examples/LedDemo/LedDemo.ino",
     "ProgHard-Link/examples/DhtSensorDemo/DhtSensorDemo.ino",
     "ProgHard-Link/examples/ThermostatDemo/ThermostatDemo.ino",
+    "ProgHard-Link/examples/ClockDemo/ClockDemo.ino",
   ]) assert.ok(entries.includes(required), required);
   assert.equal(new Set(entries.map((name) => name.split("/")[0])).size, 1);
 });

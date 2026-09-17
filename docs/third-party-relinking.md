@@ -65,7 +65,7 @@ configuration and requires recovery over USB.
 
 ## Normal Arduino IDE development remains separate
 
-For an ordinary application, import `ProgHard-Link-0.4.9.zip`, include
+For an ordinary application, import `ProgHard-Link-0.4.10.zip`, include
 `ESPway.h`, compile in Arduino IDE, then use **Sketch > Export Compiled Binary**.
 The exported `.bin` can be installed through the documented ProgHard Link OTA
 workflow. Docker, Arduino CLI and the official Base build image are not needed.
