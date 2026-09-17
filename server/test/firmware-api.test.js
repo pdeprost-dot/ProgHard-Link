@@ -80,6 +80,7 @@ test("read-only API lists released artifacts", async () => {
     artifacts.map((item) => `${item.hardware}/${item.application}/${item.applicationVersion}`).sort(),
     [
       "esp32-c3/espway-base/0.2.3",
+      "esp32-c6/espway-base/0.2.3",
       "esp32/espway-base/0.2.3",
       "esp8266/espway-base/0.2.3",
     ],

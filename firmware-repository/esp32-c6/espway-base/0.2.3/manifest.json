@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "status": "released",
+  "hardware": "esp32-c6",
+  "application": "espway-base",
+  "applicationVersion": "0.2.3",
+  "frameworkVersion": "0.4.9",
+  "size": 8388608,
+  "sha256": "9e0a477c99acb5a8269a20b8bd8e4799d574cc5b11dc8c86d1f84f8eb33fd797",
+  "file": "firmware.bin"
+}

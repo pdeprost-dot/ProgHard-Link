@@ -36,6 +36,7 @@ test("firmware v2 sends the required signed hello and exact capabilities", async
   assert.match(hello, /aead-selective.*http-ota.*mqtt/s);
   assert.match(hello, /sendFrame\(message\)/);
   assert.doesNotMatch(hello.slice(hello.indexOf("#else")), /deviceToken/);
+  assert.match(platform, /CONFIG_IDF_TARGET_ESP32C6[\s\S]*return "esp32-c6"/);
   assert.match(platform, /CONFIG_IDF_TARGET_ESP32C3[\s\S]*return "esp32-c3"/);
   assert.match(platform, /defined\(ESP8266\)[\s\S]*return "esp8266"/);
   assert.match(platform, /return "esp32"/);

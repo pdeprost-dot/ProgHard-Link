@@ -1,7 +1,7 @@
 # ProgHard Link Web Installer
 
 The installer publishes one manifest with automatically selected builds for
-ESP8266, ESP32 and ESP32-C3. It does not ask users to choose a chip family.
+ESP8266, ESP32, ESP32-C3 and ESP32-C6. It does not ask users to choose a chip family.
 
 For local UI testing, serve the repository root so the absolute Registry paths
 in the catalog remain available:

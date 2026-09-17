@@ -14,12 +14,18 @@ validation are recorded separately and should not be treated as equivalent.
 | --- | --- | --- | --- | --- | --- |
 | ESP8266 | 3.1.2 | NodeMCU 1.0 (ESP-12E Module) | Yes | ESP8266 examples | Previously exercised on ESP8266 |
 | ESP32-C3 | 3.3.11 | ESP32C3 Dev Module | Yes | ESPway and supported ESP32 examples | ESPway, MQTT, Polar BLE/PMD, HTTP/WAN and MQTT ECG |
+| ESP32-C6 | 3.3.11 | ESP32C6 Dev Module | Yes | ProgHard Link Base | Waveshare ESP32-C6-Touch-LCD-1.47 end-to-end Base workflow |
 | ESP32 | 3.3.11 | ESP32 Dev Module | Yes | ESPway and AES-GCM | None documented |
 
 For the tested 4 MB ESP32-C3, select **Minimal SPIFFS (1.9 MB APP with
 OTA/128 KB SPIFFS)**. The complete framework is larger than the 1.25 MB
 application slot in the default partition scheme. Minimal SPIFFS retains two
 application slots, so local and remote OTA remain possible.
+
+For the tested 8 MB ESP32-C6, select **8M with SPIFFS (3 MB APP/1.5 MB
+SPIFFS)**, **8 MB Flash** and **USB CDC On Boot: Enabled**. The validated board
+is Waveshare ESP32-C6-Touch-LCD-1.47. Its display and touch hardware are not
+used by ProgHard Link Base.
 
 Required Arduino libraries remain:
 
@@ -58,7 +64,7 @@ The stable ESP8266 device ID format is unchanged. ESP32 IDs use
 
 ## Sensitive payload encryption
 
-ESP8266 retains BearSSL ChaCha20-Poly1305. ESP32 and ESP32-C3 use AES-128-GCM
+ESP8266 retains BearSSL ChaCha20-Poly1305. ESP32, ESP32-C3 and ESP32-C6 use AES-128-GCM
 from the mbedTLS bundled with Arduino-ESP32 3.3.11. Both algorithms protect the
 same `ESPWAY-AEAD-1` sensitive envelope and the signed hello advertises the
 actual cipher. Tunnel v2 HMAC signing and strict sequencing remain unchanged;

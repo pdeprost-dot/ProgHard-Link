@@ -40,6 +40,8 @@ String deviceId() {
 const char* hardwareId() {
 #if defined(ESP8266)
   return "esp8266";
+#elif defined(CONFIG_IDF_TARGET_ESP32C6)
+  return "esp32-c6";
 #elif defined(CONFIG_IDF_TARGET_ESP32C3)
   return "esp32-c3";
 #else

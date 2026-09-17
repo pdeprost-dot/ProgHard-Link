@@ -1,7 +1,7 @@
 # ProgHard Link Firmware Registry V1
 
 The initial public registry contains only ProgHard Link Base 0.2.3 for ESP8266,
-ESP32 and ESP32-C3.
+ESP32, ESP32-C3 and ESP32-C6.
 
 ```text
 hardware/application/version/
@@ -18,7 +18,7 @@ release lock. Validate the registry with:
 node tools/validate-firmware-registry.js
 ```
 
-ESP32 and ESP32-C3 files are merged images flashed at offset zero. The Web
+ESP32, ESP32-C3 and ESP32-C6 files are merged images flashed at offset zero. The Web
 Installer manifests are derived from the internal manifests and checked by the
 validator. Never replace a public released binary in place; increment its
 application version.

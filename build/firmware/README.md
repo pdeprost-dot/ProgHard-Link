@@ -11,7 +11,7 @@ docker build --pull=false -f build/firmware/Dockerfile -t proghard-link-firmware
 docker run --rm -v "$PWD:/workspace" proghard-link-firmware:0.2.3
 ```
 
-The three results are written below `build/firmware/output/`. The build script
+The four results are written below `build/firmware/output/`. The build script
 selects the vendored arduinoWebSockets 2.7.2 directory explicitly and builds
 ESP32 targets sequentially in isolated directories.
 
@@ -22,4 +22,11 @@ Core package indexes resolve those exact versions and their upstream checksums.
 Resolved compiler packages are `xtensa-lx106-elf-gcc`
 `3.1.0-gcc10.3-e5f9fec` (GCC 10.3.0) for ESP8266 and Espressif `esp-x32`
 plus `esp-rv32` `2601` (GCC 14.2.0, crosstool-NG
-`esp-14.2.0_20260121`) for ESP32 and ESP32-C3.
+`esp-14.2.0_20260121`) for ESP32, ESP32-C3 and ESP32-C6.
+
+The ESP32-C6 target uses `esp32:esp32:esp32c6` with `FlashSize=8M`,
+`PartitionScheme=default_8MB` and `CDCOnBoot=cdc`. This provides two OTA-capable
+3 MB application slots on the physically validated 8 MB board.
+
+Compiler source paths under Arduino's package directory are normalized to
+`/toolchain` so released binaries do not disclose a maintainer's local path.
