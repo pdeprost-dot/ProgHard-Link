@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "releases": {
+    "0.4.8": {
+      "file": "ProgHard-Link-0.4.8.zip",
+      "size": 261054,
+      "sha256": "0e8359e3733b0571389c32f286a06b4283d1a55f7c3d27f1121c61cba36d288e"
+    }
+  }
+}

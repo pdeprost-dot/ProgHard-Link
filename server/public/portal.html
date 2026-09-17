@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProgHard Link</title>
+  <meta name="description" content="A secure remote platform for ESP8266 and ESP32 devices.">
+  <link rel="stylesheet" href="/portal.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="shell">
+      <p class="eyebrow">Secure connectivity for embedded devices</p>
+      <h1>ProgHard Link</h1>
+      <p class="tagline">Connect <span>·</span> Configure <span>·</span> Develop <span>·</span> Manage</p>
+      <p class="intro">A secure remote platform for ESP8266 and ESP32 devices.</p>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="cards" aria-label="ProgHard Link tools">
+      <article class="card">
+        <p class="label">Device Manager</p>
+        <h2>Manage your devices</h2>
+        <p>Register and manage your devices, users, remote access, API tokens, firmware and observability.</p>
+        <a class="button" href="{{ADMIN_URL}}/">Open Device Manager</a>
+      </article>
+      <article class="card">
+        <p class="label">Web Installer</p>
+        <h2>Flash from your browser</h2>
+        <p>Flash ProgHard Link Base directly from Chrome. No Arduino IDE required.</p>
+        <a class="button" href="{{INSTALLER_URL}}/">Open Web Installer</a>
+      </article>
+      <article class="card library">
+        <p class="label">Arduino Library</p>
+        <h2>One library, three targets</h2>
+        <p>One Arduino library for ESP8266 and ESP32.</p>
+        <dl>
+          <div><dt>Library version</dt><dd>{{LIBRARY_VERSION}}</dd></div>
+          <div><dt>Architectures</dt><dd>ESP8266, ESP32, ESP32-C3</dd></div>
+          <div><dt>Size</dt><dd>{{LIBRARY_SIZE}} bytes</dd></div>
+          <div class="hash"><dt>SHA-256</dt><dd>{{LIBRARY_SHA256}}</dd></div>
+        </dl>
+        <a class="button" href="{{LIBRARY_DOWNLOAD}}">Download Arduino Library (.ZIP)</a>
+      </article>
+    </section>
+    <section class="getting-started">
+      <p class="label">Getting started</p>
+      <h2>From a blank board to your own application</h2>
+      <ol>
+        <li><strong>Flash</strong><span>Install ProgHard Link Base using the Web Installer.</span></li>
+        <li><strong>Connect</strong><span>Join the provisioning access point and configure Wi-Fi plus your ProgHard Link instance.</span></li>
+        <li><strong>Register</strong><span>Use the device's local page to associate it with your account.</span></li>
+        <li><strong>Manage</strong><span>Use remote access, configuration, OTA and observability.</span></li>
+        <li><strong>Develop</strong><span>Build with Arduino, MQTT, HTTP APIs, Node-RED or Python.</span></li>
+      </ol>
+    </section>
+    <section class="integrations">
+      <p class="label">Integrate</p>
+      <h2>Use your preferred tools</h2>
+      <p>Personal API Tokens work with Node-RED, curl and Python. MQTT is available for device telemetry and application messages.</p>
+      <pre><code>msg.headers = {
+  Authorization: "Bearer &lt;personal-api-token&gt;"
+};
+msg.url = "https://{{DEVICE_HOST_EXAMPLE}}/api/status";
+return msg;</code></pre>
+    </section>
+  </main>
+  <footer class="shell">ProgHard Link · Secure remote connectivity for ESP devices</footer>
+</body>
+</html>

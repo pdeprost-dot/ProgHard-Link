@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ProgHard Link Device Manager</title>
+    <link rel="stylesheet" href="/admin.css" />
+  </head>
+  <body>
+    <header>
+      <div><strong>ProgHard Link</strong><span>Device Manager</span></div>
+      <nav>
+        <a class="button secondary" href="/">Devices</a>
+        <a id="users-link" class="button secondary" href="/users" hidden>Users</a>
+        <button id="api-tokens" class="secondary" type="button">API tokens</button>
+        <button id="my-account" class="secondary" type="button">My account</button>
+        <button id="add-device" type="button">Register device</button>
+        <button id="logout" class="secondary" type="button">Logout</button>
+      </nav>
+    </header>
+    <main>
+      <p id="identity"></p>
+      <section id="summary" aria-live="polite"></section>
+      <section id="content" aria-live="polite"><p>Loading devices…</p></section>
+    </main>
+    <dialog id="dialog">
+      <form id="dialog-form" method="dialog">
+        <div id="dialog-content"></div>
+        <div class="actions">
+          <button id="dialog-cancel" type="button">Cancel</button>
+          <button id="dialog-confirm" type="submit" value="default">Confirm</button>
+        </div>
+      </form>
+    </dialog>
+    <script src="/admin.js"></script>
+  </body>
+</html>

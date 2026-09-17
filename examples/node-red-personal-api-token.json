@@ -1,0 +1,6 @@
+[
+  {"id":"espway-inject","type":"inject","z":"espway-flow","name":"Read ESPway status","props":[{"p":"payload"}],"repeat":"","once":false,"payloadType":"date","wires":[["espway-auth"]]},
+  {"id":"espway-auth","type":"function","z":"espway-flow","name":"ProgHard Link URL + Bearer token","func":"const token = env.get('ESPWAY_PERSONAL_API_TOKEN');\nif (!token) { throw new Error('ESPWAY_PERSONAL_API_TOKEN is not configured'); }\nmsg.headers = { Authorization: `Bearer ${token}` };\nmsg.method = 'GET';\nmsg.url = 'https://esp-<deviceId>.link.proghard.com/api/status';\nreturn msg;","outputs":1,"wires":[["espway-http"]]},
+  {"id":"espway-http","type":"http request","z":"espway-flow","name":"ESPway HTTPS API","method":"use","ret":"obj","paytoqs":"ignore","url":"","persist":false,"authType":"","senderr":false,"wires":[["espway-debug"]]},
+  {"id":"espway-debug","type":"debug","z":"espway-flow","name":"ESPway response","active":true,"complete":"true","targetType":"full","wires":[]}
+]

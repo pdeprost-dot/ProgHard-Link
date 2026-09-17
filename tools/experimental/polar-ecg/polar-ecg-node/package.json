@@ -1,0 +1,13 @@
+{
+  "name": "espway-polar-ecg-node",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LAN MQTT SampleBlock V1 monitor for ESPway Polar ECG",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "mqtt": "^5.14.1"
+  }
+}

@@ -1,0 +1,49 @@
+import assert from "node:assert/strict";
+import { mkdtemp, readFile, stat } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { test } from "node:test";
+
+import { AuthorizedDeviceRegistry } from "../src/authorized-devices.js";
+import { loadConfig } from "../src/config.js";
+
+test("ESPWAY_DOMAIN is the single source for every public hostname", () => {
+  const config = loadConfig({ ESPWAY_DOMAIN: "example.net" });
+  assert.equal(config.domain, "example.net");
+  assert.equal(config.portalHost, "example.net");
+  assert.equal(config.adminHost, "admin.example.net");
+  assert.equal(config.installerHost, "install.example.net");
+  assert.equal(config.tunnelHost, "tunnel.example.net");
+  assert.equal(config.baseDomain, "example.net");
+  assert.equal(config.publicUrl, "https://admin.example.net");
+  assert.equal(config.httpFirmwareOrigin, "http://tunnel.example.net");
+  assert.equal(config.tokens.size, 0);
+});
+
+test("ESPWAY_DOMAIN is normalized and malformed domains fail closed", () => {
+  assert.equal(loadConfig({ ESPWAY_DOMAIN: "  LINK.EXAMPLE.NET. " }).domain, "link.example.net");
+  for (const domain of ["localhost", "https://example.net", "*.example.net", "bad_domain.example"])
+    assert.throws(() => loadConfig({ ESPWAY_DOMAIN: domain }), /invalid_espway_domain/);
+});
+
+test("an empty data directory gets a private empty device registry", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "espway-empty-data-"));
+  const registryPath = join(directory, "nested", "devices.json");
+  const registry = AuthorizedDeviceRegistry.fromFile(registryPath);
+  assert.deepEqual(registry.list(), []);
+  assert.deepEqual(JSON.parse(await readFile(registryPath, "utf8")), {
+    version: 1,
+    devices: {},
+  });
+  if (process.platform !== "win32")
+    assert.equal((await stat(registryPath)).mode & 0o777, 0o600);
+});
+
+test("device registry initialization never replaces existing data", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "espway-existing-data-"));
+  const registryPath = join(directory, "devices.json");
+  const first = AuthorizedDeviceRegistry.fromFile(registryPath);
+  await first.create("esp-a1b2c3", "Workshop");
+  const second = AuthorizedDeviceRegistry.fromFile(registryPath);
+  assert.equal(second.get("esp-a1b2c3").deviceName, "Workshop");
+});

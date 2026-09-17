@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "status": "released",
+  "hardware": "esp8266",
+  "application": "espway-base",
+  "applicationVersion": "0.2.3",
+  "frameworkVersion": "0.4.8",
+  "size": 559984,
+  "sha256": "9108b08739237bc6a70e4ddb2f5d1115318c164347bde61100d83958650df1d3",
+  "file": "firmware.bin"
+}

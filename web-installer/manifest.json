@@ -1,0 +1,23 @@
+{
+  "name": "ProgHard Link Base",
+  "version": "0.2.3",
+  "new_install_prompt_erase": false,
+  "new_install_improv_wait_time": 0,
+  "builds": [
+    {
+      "chipFamily": "ESP8266",
+      "improv": false,
+      "parts": [{ "path": "/firmware/esp8266/espway-base/0.2.3/firmware.bin", "offset": 0 }]
+    },
+    {
+      "chipFamily": "ESP32",
+      "improv": false,
+      "parts": [{ "path": "/firmware/esp32/espway-base/0.2.3/firmware.bin", "offset": 0 }]
+    },
+    {
+      "chipFamily": "ESP32-C3",
+      "improv": false,
+      "parts": [{ "path": "/firmware/esp32-c3/espway-base/0.2.3/firmware.bin", "offset": 0 }]
+    }
+  ]
+}

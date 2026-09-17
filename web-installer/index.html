@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>ProgHard Link Web Installer</title>
+    <script
+      type="module"
+      src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module"
+    ></script>
+    <style>
+      :root {
+        --esp-tools-button-color: #1769e0;
+        --esp-tools-button-text-color: #ffffff;
+        --esp-tools-button-border-radius: 10px;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: #f3f6fb;
+        color: #172033;
+        font: 17px/1.55 system-ui, sans-serif;
+      }
+      main {
+        width: min(680px, calc(100% - 32px));
+        margin: 48px auto;
+        padding: 36px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 14px 44px rgb(24 36 59 / 12%);
+      }
+      h1 { margin-top: 0; }
+      ol { padding-left: 24px; }
+      .installer { margin: 30px 0; text-align: center; }
+      .next {
+        margin-top: 30px;
+        padding: 20px;
+        border-left: 4px solid #1769e0;
+        background: #eef5ff;
+      }
+      small { color: #59657a; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>ProgHard Link Web Installer</h1>
+      <p>Flash ProgHard Link Base directly from your browser.</p>
+      <p><strong>Supported devices:</strong> ESP8266, ESP32 and ESP32-C3.</p>
+
+      <ol>
+        <li>Connect the device to a USB port using a data cable.</li>
+        <li>Click “Install ProgHard Link”.</li>
+        <li>Select its serial port. The compatible firmware is selected automatically.</li>
+      </ol>
+
+      <div class="installer">
+        <esp-web-install-button
+          manifest="manifest.json"
+        >
+          <button slot="activate">Install ProgHard Link</button>
+          <span slot="unsupported">
+            Web Serial is unavailable. Use Chrome or Edge on a computer.
+          </span>
+          <span slot="not-allowed">
+            Open this page over HTTPS or from localhost to allow Web Serial.
+          </span>
+        </esp-web-install-button>
+      </div>
+
+      <section class="next">
+        <h2>After installation</h2>
+        <ol>
+          <li>Connect to the setup Wi-Fi named <strong>ESPway-XXXXXX</strong>.</li>
+          <li>Open <strong>http://192.168.4.1/</strong> and configure your Wi-Fi plus the ProgHard Link instance.</li>
+          <li>After the device joins your LAN, open its local page and choose <strong>Register this device in ProgHard Link</strong>.</li>
+          <li>Sign in and confirm. The device appears in <strong>My devices</strong>; no Device ID or machine token needs to be copied.</li>
+        </ol>
+        <p class="note">Registration creates the secure machine identity behind the scenes.</p>
+      </section>
+
+      <p><small>Base firmware 0.2.3 · Arduino library 0.4.8 · Use Chrome or another browser with Web Serial support.</small></p>
+    </main>
+  </body>
+</html>

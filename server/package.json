@@ -1,0 +1,19 @@
+{
+  "name": "espway-server",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "simulator": "node simulator/index.js",
+    "create-admin": "node src/cli/create-admin.js",
+    "reset-admin-password": "node src/cli/reset-admin-password.js",
+    "test": "node --test --test-concurrency=1"
+  },
+  "dependencies": {
+    "ws": "8.21.3"
+  }
+}

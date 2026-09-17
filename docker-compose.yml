@@ -1,0 +1,81 @@
+name: proghard-link
+
+services:
+  data-init:
+    image: alpine:3.22
+    user: "0:0"
+    network_mode: none
+    command: ["sh", "-c", "chown -R 1000:1000 /data && chmod 700 /data"]
+    volumes:
+      - app_data:/data
+    restart: "no"
+
+  server:
+    build:
+      context: ./server
+    restart: unless-stopped
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      ESPWAY_DOMAIN: ${ESPWAY_DOMAIN:?set ESPWAY_DOMAIN in .env}
+      ESPWAY_FIRMWARE_DIR: /firmware
+      ESPWAY_DOWNLOAD_DIR: /downloads
+      ESPWAY_DEVICE_REGISTRY_FILE: /data/devices.json
+      ESPWAY_AUTH_DATABASE_FILE: /data/auth.sqlite
+      ESPWAY_OTA_OPERATOR_TOKEN: ${ESPWAY_OTA_OPERATOR_TOKEN:-}
+    volumes:
+      - app_data:/data
+      - ./firmware-repository:/firmware:ro
+      - ./download-repository:/downloads:ro
+    expose:
+      - "3000"
+    networks:
+      - backend
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ESPWAY_DOMAIN: ${ESPWAY_DOMAIN:?set ESPWAY_DOMAIN in .env}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./web-installer:/srv/web-installer:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:2019/config/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  backend:
+
+volumes:
+  app_data:
+  caddy_data:
+  caddy_config:

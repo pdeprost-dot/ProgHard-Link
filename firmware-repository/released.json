@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "artifacts": {
+    "esp32-c3/espway-base/0.2.3": {
+      "size": 4194304,
+      "sha256": "b8350ee72f6333078a5351e1e2f2af9dd24c53d468043b977e835f0eae9a5ecf"
+    },
+    "esp32/espway-base/0.2.3": {
+      "size": 4194304,
+      "sha256": "6865daa11e4f580edfe3720b573ba046ab5371955e36d8af762f824f856ef43b"
+    },
+    "esp8266/espway-base/0.2.3": {
+      "size": 559984,
+      "sha256": "9108b08739237bc6a70e4ddb2f5d1115318c164347bde61100d83958650df1d3"
+    }
+  }
+}
