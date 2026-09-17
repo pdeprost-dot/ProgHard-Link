@@ -5,13 +5,64 @@ Link user documentation. Do not add reconstructed or synthetic screenshots.
 
 ## Current availability
 
-Thirty-one screenshots from the 0.2.2 and 0.2.3 validation runs remain visible
-in the historical working conversation. None of their original image files is
-available in the repository, Codex attachments, workspace, or the usual local
-screenshot folders. They therefore cannot be copied or published from the
-current session.
+Twelve authentic browser captures from the 2026-09-17 Base 0.2.3 validation
+runs are stored below this directory. The runs used a real ESP8266 and
+completed Web Installer, provisioning, enrollment, Device Manager ONLINE state
+and remote HTTPS access.
 
-Status meanings:
+Current-capture status meanings:
+
+- **ORIGINAL-TEST**: unmodified evidence captured from the real product test.
+- **READY**: visually inspected and suitable for public documentation as
+  captured. For this test documentation, the `admin` test account, sacrificial
+  ESP Device ID, private test LAN addresses and ordinary device telemetry are
+  explicitly permitted.
+- **NEEDS-REDACTION**: authentic original containing a real password, token,
+  credential, unrelated personal data or private content from another app.
+- **RECAPTURE**: authentic test evidence, but not suitable for the guide.
+- **SUPERSEDED**: replaced by a newer native capture; retained temporarily for
+  traceability until the dedicated cleanup pass.
+
+| File | Step | What it shows | Publication status | Data to mask or issue | Product version |
+|---|---|---|---|---|---|
+| `web-installer/01-home.png` | Open Web Installer | Current installer, supported targets and next steps | ORIGINAL-TEST / READY | None | Base 0.2.3 / library 0.4.8 |
+| `web-installer/02-install-confirmation.png` | Confirm installation | Clean Base 0.2.3 erase confirmation from the second flash | ORIGINAL-TEST / READY | None | Base 0.2.3 |
+| `web-installer/03-install-progress.png` | Flash device | Clean real firmware write progress from the second flash | ORIGINAL-TEST / READY | None | Base 0.2.3 |
+| `web-installer/04-install-complete.png` | Complete installation | Clean successful installation result from the second flash | ORIGINAL-TEST / READY | None | Base 0.2.3 |
+| `provisioning/01-setup-empty.png` | Provision Wi-Fi | Current ProgHard Link Setup form before private data entry | ORIGINAL-TEST / READY | None | Base 0.2.3 |
+| `provisioning/02-saved-restarting.png` | Save configuration | Current Saved / Restarting confirmation | ORIGINAL-TEST / READY | None | Base 0.2.3 |
+| `provisioning/04-device-lan-page.png` | Return to LAN | Local device page before enrollment and connected Wi-Fi/tunnel state | ORIGINAL-TEST / READY | Inspected: test Device ID and private test LAN IPv4 only | Base 0.2.3 / framework 0.4.8 |
+| `device-manager/01-login.png` | Sign in | Clean Device Manager login page with empty fields | ORIGINAL-TEST / READY | None | Server 0.5.0 |
+| `device-manager/02-enrollment-confirmation.png` | Confirm claim | Device, hardware and application presented for enrollment | ORIGINAL-TEST / READY | Inspected: test account and sacrificial Device ID only | Server 0.5.0 / Base 0.2.3 |
+| `device-manager/03-device-claimed.png` | Complete claim | Successful account association | ORIGINAL-TEST / READY | Inspected: permitted `admin` test account only | Server 0.5.0 |
+| `device-manager/04-my-devices-online.png` | View My devices | One Base 0.2.3 ESP8266 online and up to date | ORIGINAL-TEST / READY | Inspected: test account, Device ID and ordinary telemetry only | Server 0.5.0 / Base 0.2.3 |
+| `remote-access/01-remote-device-ui.png` | My devices → Open | Real remote HTTPS device UI, registered and tunnel connected | ORIGINAL-TEST / READY | Inspected: test Device ID and private test LAN IPv4 only | Base 0.2.3 / framework 0.4.8 |
+
+Additional screenshots supplied during the run show Windows joining the setup
+AP and the completed provisioning form. Their original files were not exposed
+to the workspace, so they are not stored here. The completed form contains a
+private SSID and requires redaction; the setup-AP screenshots expose the real
+device suffix. The clean empty form and saved/restarting states were recovered
+directly from their still-open real browser tabs and are stored above.
+
+A follow-up real enrollment on 2026-09-17 removed the obsolete authorization,
+registered the freshly flashed ESP8266 again, and verified exactly one ONLINE
+device, a connected tunnel, and working **My devices → Open** access. The
+native test captures containing the permitted test account, sacrificial Device
+ID and private LAN IPv4 address are now publication-ready. No current capture
+is marked SUPERSEDED.
+
+Publication still strictly excludes passwords, Wi-Fi passwords, tokens,
+secrets, session cookies, private keys, credentials, unrelated personal data,
+and private content from other applications or browser tabs.
+
+Thirty-one older screenshots from the 0.2.2 and 0.2.3 validation runs remain
+visible only in the historical working conversation. None of their original
+image files is available in the repository, Codex attachments, workspace, or
+the usual local screenshot folders. They therefore cannot be copied or
+published from the current session.
+
+Historical-reference status meanings:
 
 - **A**: directly reusable file.
 - **B**: reusable file after cropping or anonymization.
