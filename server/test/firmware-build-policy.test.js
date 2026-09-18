@@ -32,6 +32,8 @@ test("firmware v2 sends the required signed hello and exact capabilities", async
   assert.match(hello, /tunnelProtocol/);
   assert.match(hello, /applicationVersion/);
   assert.match(hello, /ESPwayPlatform::hardwareId\(\)/);
+  assert.match(hello, /otaMaxBytes/);
+  assert.match(hello, /ESPwayPlatform::otaMaxBytes\(\)/);
   assert.doesNotMatch(hello, /"hardware":"esp8266"/);
   assert.match(hello, /aead-selective.*http-ota.*mqtt/s);
   assert.match(hello, /sendFrame\(message\)/);
@@ -126,6 +128,15 @@ test("firmware retains authenticated HTTP OTA", async () => {
   assert.doesNotMatch(otaHeader, /ESPWAY_LEGACY_WSS|EXPERIMENTAL/);
   assert.match(ota, /url\.startsWith\("http:\/\/"\)/);
   assert.match(ota, /constantTimeEqual/);
+});
+
+test("streaming OTA uses the next partition capacity instead of a universal firmware limit", async () => {
+  const platform = await source("ESPwayPlatform.cpp");
+  const streamHeader = await source("ESPwayStreamOta.h");
+  const stream = await source("ESPwayStreamOta.cpp");
+  assert.match(platform, /otaMaxBytes\(\).*ESP\.getFreeSketchSpace\(\)/);
+  assert.doesNotMatch(streamHeader, /MAX_FIRMWARE_SIZE/);
+  assert.match(stream, /expectedSize > ESPwayPlatform::otaMaxBytes\(\)/);
 });
 
 test("firmware rejects missing or unexpected AEAD envelopes", async () => {

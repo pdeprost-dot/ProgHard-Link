@@ -11,6 +11,7 @@ import { AuthorizedDeviceRegistry } from "../src/authorized-devices.js";
 import { DeviceManager } from "../src/device-manager.js";
 import { FirmwareRegistry } from "../src/firmware-registry.js";
 import { compareSemver } from "../src/semver.js";
+import { computeOtaProof } from "../src/ota-authorization.js";
 import { createEspwayServer } from "../src/server.js";
 
 const repositoryRoot = new URL("../../", import.meta.url);
@@ -443,6 +444,49 @@ test("OTA refuses offline devices and devices without verified capability", asyn
   assert.equal((await post("/api/admin/devices/esp-a4f912/ota", {
     applicationVersion: "0.1.0",
   })).json().error, "http_ota_not_supported");
+});
+
+test("Device Manager streams a user binary with server-side device authorization", async () => {
+  const firmware = Buffer.alloc(1024 * 1024 + 17, 0x5a);
+  const digest = (await import("node:crypto")).createHash("sha256").update(firmware).digest("hex");
+  const boundary = "espway-admin-test";
+  const envelope = Buffer.concat([
+    Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="update"; filename="clock.bin"\r\nContent-Type: application/octet-stream\r\n\r\n`),
+    firmware,
+    Buffer.from(`\r\n--${boundary}--\r\n`),
+  ]);
+  const device = {
+    deviceId: "esp-a4f912", connected: true, transport: "ws-hmac",
+    tunnelProtocol: "espway-tunnel/2", metadataVerified: true,
+    capabilities: ["http-ota"], otaMaxBytes: 3342336,
+  };
+  app.registry.connect(device, {});
+  app.broker.request = async (_device, requestValue) => {
+    assert.equal(requestValue.path, "/api/ota/challenge");
+    return { status: 200, body: Buffer.from('{"nonce":"test-nonce"}') };
+  };
+  app.broker.streamRequest = async (_device, metadata, chunks) => {
+    assert.equal(metadata.otaSize, firmware.length);
+    assert.equal(metadata.otaSha256, digest);
+    assert.equal(metadata.otaProof, computeOtaProof("legacy-secret", {
+      deviceId: "esp-a4f912", nonce: "test-nonce", size: firmware.length, sha256: digest,
+    }).toString("hex"));
+    const received = [];
+    for await (const chunk of chunks) received.push(chunk);
+    assert.deepEqual(Buffer.concat(received), firmware);
+    return { status: 202, headers: {}, body: Buffer.from('{"status":"accepted"}') };
+  };
+  const response = await request("/api/admin/devices/esp-a4f912/ota-upload", {
+    method: "POST", body: envelope.toString("latin1"),
+    headers: {
+      "content-type": `multipart/form-data; boundary=${boundary}`,
+      "x-espway-admin-request": "1",
+      "x-espway-ota-size": String(firmware.length),
+      "x-espway-ota-sha256": digest,
+    },
+  });
+  assert.equal(response.status, 202);
+  assert.equal(response.json().status, "validated");
 });
 
 test("semver comparison is numeric and refuses unsupported versions", () => {

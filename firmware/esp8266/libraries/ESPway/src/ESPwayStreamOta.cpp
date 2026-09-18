@@ -37,8 +37,7 @@ bool ESPwayStreamOta::begin(
   const String& proof
 ) {
   abort();
-  if (expectedSize == 0 || expectedSize > MAX_FIRMWARE_SIZE ||
-      expectedSize > ESP.getFreeSketchSpace() ||
+  if (expectedSize == 0 || expectedSize > ESPwayPlatform::otaMaxBytes() ||
       !parseDigest(expectedSha256, expectedDigest)) {
     Serial.println(F("OTA stream rejected: invalid size or digest"));
     return false;

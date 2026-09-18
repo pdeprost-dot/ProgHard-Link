@@ -32,7 +32,8 @@ export function loadConfig(env = process.env) {
     enrollmentTtlMs: Number(env.ESPWAY_ENROLLMENT_TTL_MS || 600000),
     requestTimeoutMs: Number(env.ESPWAY_REQUEST_TIMEOUT_MS || 10000),
     maxBodyBytes: Number(env.ESPWAY_MAX_BODY_BYTES || 262144),
-    maxOtaUploadBytes: Number(env.ESPWAY_MAX_OTA_UPLOAD_BYTES || 1048576),
+    maxOtaUploadBytes: Number(env.ESPWAY_MAX_OTA_UPLOAD_BYTES || 8388608),
+    legacyOtaMaxBytes: Number(env.ESPWAY_LEGACY_OTA_MAX_BYTES || 1048576),
     otaUploadTimeoutMs: Number(env.ESPWAY_OTA_UPLOAD_TIMEOUT_MS || 120000),
     maxStreamsPerDevice: Number(env.ESPWAY_MAX_STREAMS_PER_DEVICE || 8),
     heartbeatIntervalMs: Number(env.ESPWAY_HEARTBEAT_INTERVAL_MS || 30000),
@@ -57,7 +58,7 @@ export function loadConfig(env = process.env) {
     httpFirmwareOrigin:
       env.ESPWAY_HTTP_FIRMWARE_ORIGIN ||
       `http://tunnel.${domain}`,
-    maxFirmwareBytes: Number(env.ESPWAY_MAX_FIRMWARE_BYTES || 1048576),
+    maxFirmwareBytes: Number(env.ESPWAY_MAX_FIRMWARE_BYTES || 8388608),
     otaOperatorToken: env.ESPWAY_OTA_OPERATOR_TOKEN || "",
     deviceRegistryFile:
       env.ESPWAY_DEVICE_REGISTRY_FILE ||

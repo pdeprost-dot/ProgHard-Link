@@ -20,6 +20,7 @@ const LIVE_FIELDS = [
   "tunnelProtocol",
   "metadataVerified",
   "capabilities",
+  "otaMaxBytes",
 ];
 
 function publicLiveState(device) {
@@ -154,6 +155,11 @@ export class DeviceManager {
       },
     );
     if (!prepared.ok) return prepared;
+    const capacity = Number.isSafeInteger(device.otaMaxBytes)
+      ? device.otaMaxBytes
+      : (this.config.legacyOtaMaxBytes ?? 1048576);
+    if (prepared.command.size > capacity)
+      return { status: 413, error: "firmware_exceeds_device_ota_capacity" };
     const result = await this.broker.request(device, {
       method: "POST",
       path: "/api/ota/remote",

@@ -6,7 +6,7 @@ Manager, OTA updates and a browser-based firmware installer. Local operation
 does not depend on Internet access.
 
 The first public baseline is ProgHard Link Base 0.2.3 with Arduino library
-0.4.10. It supports ESP8266, ESP32, ESP32-C3 and ESP32-C6. The historical technical names
+0.4.11. It supports ESP8266, ESP32, ESP32-C3 and ESP32-C6. The historical technical names
 `ESPWAY_*`, `ESPway.h`, `espway-base` and `espway-tunnel/2` remain stable for
 compatibility.
 
@@ -14,9 +14,9 @@ compatibility.
 
 | Component | Version |
 | --- | --- |
-| Server | `0.5.0` |
+| Server | `0.5.1` |
 | ProgHard Link Base | `0.2.3` |
-| Arduino library | `0.4.10` |
+| Arduino library | `0.4.11` |
 | Tunnel protocol | `espway-tunnel/2` |
 
 ## Start here

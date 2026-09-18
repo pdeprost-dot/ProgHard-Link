@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added authenticated user-firmware upload to the Device Manager. Devices now
+  advertise their next OTA partition capacity, while the server applies an
+  8 MiB operational ceiling and a conservative 1 MiB fallback for older
+  firmware. The server-held Device Token authorizes the existing tunnel V2
+  streaming protocol without exposing machine credentials to the user.
 - Added the hardware-validated ESP32-C6 `ClockDemo` user application and
   published Arduino library 0.4.10 without replacing the immutable 0.4.9
   archive. The example provides a Waveshare LCD clock, NTP/manual time,

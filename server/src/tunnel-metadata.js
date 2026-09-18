@@ -29,6 +29,8 @@ export function parseSignedHello(message, expectedDeviceId) {
     !validText(message.application, 64) ||
     !validText(message.applicationVersion, 32) ||
     !validText(message.frameworkVersion, 32) ||
+    (message.otaMaxBytes !== undefined &&
+      (!Number.isSafeInteger(message.otaMaxBytes) || message.otaMaxBytes <= 0)) ||
     !Array.isArray(message.capabilities) ||
     message.capabilities.length > MAX_CAPABILITIES
   ) {
@@ -55,6 +57,7 @@ export function parseSignedHello(message, expectedDeviceId) {
     applicationVersion: message.applicationVersion,
     firmwareVersion: message.applicationVersion,
     frameworkVersion: message.frameworkVersion,
+    ...(message.otaMaxBytes === undefined ? {} : { otaMaxBytes: message.otaMaxBytes }),
     capabilities,
     metadataVerified: true,
   };

@@ -44,6 +44,7 @@ uint32_t freeHeap();
 uint32_t maxFreeBlock();
 uint32_t heapFragmentation();
 uint32_t flashSize();
+uint32_t otaMaxBytes();
 String resetReason();
 bool setHostname(const String& hostname);
 bool randomBytes(uint8_t* output, size_t length);

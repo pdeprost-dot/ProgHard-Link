@@ -1140,6 +1140,7 @@ void ESPwayFramework::sendHello() {
     "\",\"applicationVersion\":\"" +
     jsonEscape(application->firmwareVersion()) +
     "\",\"frameworkVersion\":\"" ESPWAY_FRAMEWORK_VERSION "\""
+    ",\"otaMaxBytes\":" + String(ESPwayPlatform::otaMaxBytes()) +
     ",\"capabilities\":[\"aead-selective\",\"" +
     String(ESPwayPlatform::SENSITIVE_CIPHER_CAPABILITY) +
     "\",\"http-ota\",\"mqtt\"]}";

@@ -73,6 +73,8 @@ uint32_t heapFragmentation() {
 
 uint32_t flashSize() { return ESP.getFlashChipSize(); }
 
+uint32_t otaMaxBytes() { return ESP.getFreeSketchSpace(); }
+
 String resetReason() {
 #if defined(ESP8266)
   return ESP.getResetReason();

@@ -286,9 +286,14 @@ function showDetail(device) {
   deleteButton.addEventListener("click", () => deleteDevice(device));
   actions.append(deleteButton);
   if (device.online && device.firmware?.latest) {
-    const otaButton = node("button", { type: "button", textContent: "OTA" });
+    const otaButton = node("button", { type: "button", textContent: "Install released firmware" });
     otaButton.addEventListener("click", () => confirmOta(device));
     actions.append(otaButton);
+  }
+  if (device.online && device.capabilities?.includes("http-ota")) {
+    const uploadButton = node("button", { type: "button", textContent: "Update firmware" });
+    uploadButton.addEventListener("click", () => updateFirmware(device));
+    actions.append(uploadButton);
   }
   panel.append(actions);
   content.replaceChildren(panel);
@@ -371,6 +376,91 @@ function confirmOta(device) {
   }, device.firmware.state === "latest"
     ? "Reinstall current firmware"
     : "Install update");
+}
+
+function formatBytes(value) {
+  if (!Number.isFinite(value)) return "Unknown";
+  return `${(value / (1024 * 1024)).toFixed(2)} MiB (${value} bytes)`;
+}
+
+async function sha256File(file) {
+  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+  return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
+}
+
+function uploadFirmware(deviceId, file, sha256, status, progress) {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("POST", `/api/admin/devices/${deviceId}/ota-upload`);
+    request.setRequestHeader("X-ESPway-Admin-Request", "1");
+    request.setRequestHeader("X-ESPway-CSRF", csrfToken);
+    request.setRequestHeader("X-ESPway-OTA-Size", String(file.size));
+    request.setRequestHeader("X-ESPway-OTA-SHA256", sha256);
+    request.upload.addEventListener("progress", (event) => {
+      if (!event.lengthComputable) return;
+      const percent = Math.round(event.loaded * 100 / event.total);
+      progress.value = percent;
+      status.textContent = `Uploading: ${percent}%`;
+    });
+    request.addEventListener("load", () => {
+      let body = {};
+      try { body = JSON.parse(request.responseText); } catch {}
+      if (request.status >= 200 && request.status < 300) resolve(body);
+      else reject(new Error(body.error || `HTTP ${request.status}`));
+    });
+    request.addEventListener("error", () => reject(new Error("Firmware upload failed")));
+    const body = new FormData();
+    body.append("update", file, file.name);
+    request.send(body);
+  });
+}
+
+async function waitForReconnect(deviceId, previousConnectedSince, status) {
+  status.textContent = "Firmware validated. Waiting for reboot and reconnection...";
+  const deadline = Date.now() + 120000;
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    try {
+      const device = await api(`/api/admin/devices/${deviceId}`);
+      if (device.online && device.connectedSince !== previousConnectedSince) {
+        status.textContent = "Device reconnected and ONLINE.";
+        return device;
+      }
+    } catch {}
+  }
+  throw new Error("Firmware was accepted, but the device did not reconnect in time");
+}
+
+function updateFirmware(device) {
+  const capacity = Number.isSafeInteger(device.otaMaxBytes) ? device.otaMaxBytes : 1048576;
+  const capacitySource = Number.isSafeInteger(device.otaMaxBytes)
+    ? "reported by this device" : "conservative limit for older firmware";
+  const fileInput = node("input", { id: "firmware-file", type: "file", accept: ".bin,application/octet-stream", required: "" });
+  const status = node("p", { id: "ota-status", textContent: "Choose a firmware binary." });
+  const progress = node("progress", { max: "100", value: "0" });
+  const selected = node("p", { className: "help" });
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    selected.textContent = file ? `${file.name}: ${formatBytes(file.size)}` : "";
+  });
+  openDialog(node("div", {}, [
+    node("h2", { textContent: `Update firmware — ${device.deviceId}` }),
+    node("p", { textContent: `OTA capacity: ${formatBytes(capacity)} (${capacitySource}).` }),
+    node("label", { textContent: "Firmware (.bin)" }, [fileInput]),
+    selected, progress, status,
+    node("p", { className: "help", textContent: "The Device Token remains internal and is never requested." }),
+  ]), async () => {
+    const file = fileInput.files[0];
+    if (!file) throw new Error("Select a .bin firmware file");
+    if (!file.name.toLowerCase().endsWith(".bin")) throw new Error("Firmware must be a .bin file");
+    if (file.size > capacity) throw new Error(`Firmware exceeds the ${formatBytes(capacity)} OTA capacity`);
+    status.textContent = "Validating firmware (SHA-256)...";
+    const digest = await sha256File(file);
+    status.textContent = "Starting authenticated OTA...";
+    await uploadFirmware(device.deviceId, file, digest, status, progress);
+    await waitForReconnect(device.deviceId, device.connectedSince, status);
+    await loadDetail(device.deviceId);
+  }, "Update firmware");
 }
 
 function changeEnabled(device) {

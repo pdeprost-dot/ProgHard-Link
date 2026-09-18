@@ -45,7 +45,7 @@ function socketFor(host = TUNNEL_HOST) {
 function hello(capabilities = ["aead-selective", "http-ota", "mqtt"]) {
   return { type: "hello", tunnelProtocol: TUNNEL_PROTOCOL_V2, deviceId: DEVICE_ID,
     deviceName: "V2 device", hardware: "esp8266", application: "thermostat-demo",
-    applicationVersion: "0.2.0", frameworkVersion: "0.2.0", capabilities };
+    applicationVersion: "0.2.0", frameworkVersion: "0.2.0", otaMaxBytes: 3342336, capabilities };
 }
 function sendSigned(socket, message) {
   socket.send(signFrame(socket.testSession, "C2S", message));
@@ -111,6 +111,7 @@ test("signed hello registers verified metadata", async () => {
   assert.equal(device.transport, "ws-hmac");
   assert.equal(device.tunnelProtocol, TUNNEL_PROTOCOL_V2);
   assert.equal(device.metadataVerified, true);
+  assert.equal(device.otaMaxBytes, 3342336);
   assert.deepEqual(device.capabilities, ["aead-selective", "http-ota", "mqtt"]);
 });
 test("unknown optional capabilities are ignored", async () => {

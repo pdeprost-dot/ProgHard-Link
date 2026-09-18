@@ -24,6 +24,7 @@ import {
 } from "./firmware-registry.js";
 import { supportsHttpOta } from "./tunnel-metadata.js";
 import { firmwareParts, multipartBoundary } from "./ota-upload.js";
+import { computeOtaProof } from "./ota-authorization.js";
 import {
   ArduinoDownloadRepository,
   portalHtml,
@@ -80,9 +81,7 @@ function requestHost(req) {
   return String(req.headers.host || "").toLowerCase().split(":")[0];
 }
 
-function validAdminWrite(req, adminHost) {
-  if (!String(req.headers["content-type"] || "").toLowerCase()
-    .startsWith("application/json")) return false;
+function validAdminOrigin(req, adminHost) {
   if (req.headers["x-espway-admin-request"] !== "1") return false;
   const source = req.headers.origin || req.headers.referer;
   if (!source) return true;
@@ -91,6 +90,11 @@ function validAdminWrite(req, adminHost) {
   } catch {
     return false;
   }
+}
+
+function validAdminWrite(req, adminHost) {
+  return String(req.headers["content-type"] || "").toLowerCase()
+    .startsWith("application/json") && validAdminOrigin(req, adminHost);
 }
 
 function operatorAuthorized(req, expectedToken) {
@@ -230,6 +234,61 @@ export function createEspwayServer(config) {
           req, res, url, enrollments, authorizedDevices, auth, config,
         );
         if (enrollmentHandled) return;
+        const uploadMatch = /^\/api\/admin\/devices\/(esp-[a-f0-9]{6,16})\/ota-upload$/.exec(url.pathname);
+        if (uploadMatch) {
+          const deviceId = uploadMatch[1];
+          if (req.method !== "POST") return sendJson(res, 405, { error: "method_not_allowed" });
+          if (!validAdminOrigin(req, config.adminHost) ||
+              (auth && req.headers["x-espway-csrf"] !== req.espwayCsrf))
+            return sendJson(res, 403, { error: "admin_request_rejected" });
+          if (auth && !auth.canAccessDevice(req.espwayUser, deviceId))
+            return sendJson(res, 404, { error: "device_not_found" });
+          const boundary = multipartBoundary(req.headers["content-type"]);
+          const otaSize = Number(req.headers["x-espway-ota-size"]);
+          const otaSha256 = String(req.headers["x-espway-ota-sha256"] || "").toLowerCase();
+          const device = registry.get(deviceId);
+          const deviceCapacity = Number.isSafeInteger(device?.otaMaxBytes)
+            ? device.otaMaxBytes : (config.legacyOtaMaxBytes ?? 1048576);
+          const effectiveMaximum = Math.min(config.maxOtaUploadBytes ?? 8388608, deviceCapacity);
+          if (!device?.connected) return sendJson(res, 409, { error: "device_offline" });
+          if (!supportsHttpOta(device)) return sendJson(res, 409, { error: "http_ota_not_supported" });
+          if (activeOtaUploads.has(deviceId)) return sendJson(res, 409, { error: "ota_already_active" });
+          if (!boundary || !Number.isSafeInteger(otaSize) || otaSize <= 0 ||
+              !/^[a-f0-9]{64}$/.test(otaSha256))
+            return sendJson(res, 400, { error: "invalid_ota_upload" });
+          if (otaSize > effectiveMaximum)
+            return sendJson(res, 413, { error: "firmware_exceeds_ota_capacity", otaMaxBytes: effectiveMaximum });
+          const deviceToken = authorizedDevices.getToken(deviceId, config.tokens);
+          if (!deviceToken) return sendJson(res, 503, { error: "device_credential_unavailable" });
+          activeOtaUploads.add(deviceId);
+          try {
+            const challenge = await broker.request(device, {
+              method: "GET", path: "/api/ota/challenge", headers: {}, body: Buffer.alloc(0),
+            });
+            if (challenge.status !== 200) return sendJson(res, challenge.status, { error: "ota_challenge_failed" });
+            let nonce;
+            try { nonce = JSON.parse(challenge.body.toString("utf8")).nonce; } catch {}
+            if (typeof nonce !== "string" || nonce.length === 0)
+              return sendJson(res, 502, { error: "invalid_ota_challenge" });
+            const otaProof = computeOtaProof(deviceToken, {
+              deviceId, nonce, size: otaSize, sha256: otaSha256,
+            }).toString("hex");
+            const result = await broker.streamRequest(device, {
+              method: "POST", path: "/ota/upload", headers: { "content-type": "application/octet-stream" },
+              otaSize, otaSha256, otaProof,
+            }, firmwareParts(req, boundary, effectiveMaximum), {
+              timeoutMs: config.otaUploadTimeoutMs,
+            });
+            if (result.status >= 200 && result.status < 300)
+              return sendJson(res, result.status, {
+                status: "validated", size: otaSize, sha256: otaSha256,
+              });
+            res.writeHead(result.status, filterHeaders(result.headers));
+            return res.end(result.body);
+          } finally {
+            activeOtaUploads.delete(deviceId);
+          }
+        }
         const handled = await serveDeviceManager(
           req,
           res,
@@ -300,8 +359,11 @@ export function createEspwayServer(config) {
         const otaSize = Number(req.headers["x-espway-ota-size"]);
         const otaSha256 = String(req.headers["x-espway-ota-sha256"] || "");
         const otaProof = String(req.headers["x-espway-ota-proof"] || "");
+        const deviceCapacity = Number.isSafeInteger(device.otaMaxBytes)
+          ? device.otaMaxBytes : (config.legacyOtaMaxBytes ?? 1048576);
+        const effectiveMaximum = Math.min(config.maxOtaUploadBytes ?? 8388608, deviceCapacity);
         if (!boundary || !Number.isSafeInteger(otaSize) || otaSize <= 0 ||
-            otaSize > config.maxOtaUploadBytes || !/^[a-f0-9]{64}$/.test(otaSha256) ||
+            otaSize > effectiveMaximum || !/^[a-f0-9]{64}$/.test(otaSha256) ||
             !/^[a-f0-9]{64}$/.test(otaProof))
           return send(res, 400, "invalid ota upload");
         activeOtaUploads.add(deviceId);
@@ -309,7 +371,7 @@ export function createEspwayServer(config) {
           const result = await broker.streamRequest(device, {
             method: req.method, path: req.url, headers: filterHeaders(req.headers),
             otaSize, otaSha256, otaProof,
-          }, firmwareParts(req, boundary, config.maxOtaUploadBytes), {
+          }, firmwareParts(req, boundary, effectiveMaximum), {
             timeoutMs: config.otaUploadTimeoutMs,
           });
           res.writeHead(result.status, filterHeaders(result.headers));

@@ -1,6 +1,6 @@
 # OTA
 
-The same `/ota` page works over LAN HTTP and the public device HTTPS endpoint.
+The advanced `/ota` page works over LAN HTTP and the public device HTTPS endpoint.
 The browser calculates the firmware SHA-256, requests a one-use challenge and
 derives an OTA authorization key from the individual device token. It sends a
 multipart upload with the decimal size, lowercase hexadecimal digest and HMAC
@@ -17,8 +17,16 @@ ESPWAY-OTA-AUTH-1
 ```
 
 The challenge expires after 60 seconds and is invalidated before comparison,
-so failed and successful attempts cannot be replayed. The firmware limit is
-1 MiB and only one OTA may run per device.
+so failed and successful attempts cannot be replayed. Only one OTA may run per
+device. Current firmware announces `otaMaxBytes`, derived from the real next
+OTA partition capacity. Older firmware without this signed metadata is limited
+conservatively to 1 MiB.
+
+For the normal remote workflow, Device Manager accepts a `.bin`, calculates
+its SHA-256 in the browser and streams it to the device. The authenticated
+server verifies session ownership and CSRF, obtains the one-use challenge,
+loads the Device Token from its private device registry and computes the HMAC
+proof. The user never enters or receives the Device Token in this workflow.
 
 ## Streaming
 
@@ -37,5 +45,8 @@ BearSSL SHA-256 state. `Update.end(true)` is called only when the exact byte
 count and digest match. Timeout, disconnect, malformed metadata, oversized
 chunks and write or digest failures abort the update without rebooting.
 
-The server defaults are `ESPWAY_MAX_OTA_UPLOAD_BYTES=1048576` and
-`ESPWAY_OTA_UPLOAD_TIMEOUT_MS=120000`.
+The server operational defaults are `ESPWAY_MAX_OTA_UPLOAD_BYTES=8388608` and
+`ESPWAY_MAX_FIRMWARE_BYTES=8388608`; the effective upload/Registry limit
+remains the smaller of the applicable server value and the device capacity.
+`ESPWAY_LEGACY_OTA_MAX_BYTES=1048576` controls the old-firmware fallback and
+`ESPWAY_OTA_UPLOAD_TIMEOUT_MS=120000` controls the streaming timeout.

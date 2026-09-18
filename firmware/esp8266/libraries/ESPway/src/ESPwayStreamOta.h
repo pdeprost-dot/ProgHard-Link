@@ -7,7 +7,6 @@
 
 class ESPwayStreamOta {
  public:
-  static constexpr size_t MAX_FIRMWARE_SIZE = 1024 * 1024;
   static constexpr size_t DATA_CHUNK_SIZE = 512;
 
   bool begin(

@@ -225,15 +225,18 @@ an application-update requirement.
   HMAC proof.
 - Remote multipart uploads are streamed through tunnel V2 in 512-byte chunks
   with one chunk in flight and an ACK before the next chunk.
-- The Device Manager OTA button currently installs only a released Firmware
-  Registry artifact; it does not accept an Arduino-exported `.bin`.
-- Current upload and firmware limits include fixed 1 MiB ceilings.
+- Device Manager accepts an Arduino-exported `.bin` without asking for the
+  Device Token. Session, ownership and CSRF authorize the request; the server
+  retrieves the private machine credential and computes the existing proof.
+- Devices advertise `otaMaxBytes` from their next OTA partition. The server
+  applies an 8 MiB operational ceiling and a 1 MiB conservative fallback for
+  older firmware that does not advertise a capacity.
+- Firmware Registry installation and the advanced LAN OTA path remain
+  available.
 - A successful update reboots and the device reconnects with the same stored
   identity. OTA does not erase LittleFS or NVS.
 
-### Planned / design direction
-
-The audited direction, not yet implemented, is:
+The implemented Device Manager path is:
 
 ```text
 Device Manager -> choose .bin -> authenticated remote streaming OTA
@@ -241,8 +244,7 @@ Device Manager -> choose .bin -> authenticated remote streaming OTA
 -> verified write -> reboot -> reconnect -> ONLINE
 ```
 
-The design should reuse session, ownership, the server-held Device Token, the
-existing nonce/HMAC/SHA-256 proof and tunnel V2 streaming.
+It reuses the existing nonce/HMAC/SHA-256 proof and tunnel V2 streaming.
 
 ## 9. Application lifecycle
 
