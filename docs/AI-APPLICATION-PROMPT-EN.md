@@ -44,9 +44,13 @@ Preserve the Device ID, Device Token, Wi-Fi, enrollment, ownership, and
 configuration during normal updates. Never perform a full erase merely to
 deploy a new application version. Use the current ProgHard Link remote OTA
 workflow in Device Manager when available. Keep hardware-specific code
-reasonably isolated from application logic. Change the ProgHard Link core or
-framework only when a concrete limitation is demonstrated against the current
-repository.
+reasonably isolated from application logic. Prefer the existing mechanisms,
+but also treat application development as a way to identify and improve the
+framework's generic capabilities. If the application reveals a missing generic
+feature, limitation, or inconsistency, analyze it and improve the framework
+when that is preferable to an application-specific workaround. Preserve
+compatibility with existing applications as far as reasonably possible and add
+appropriate tests.
 
 Compile and test for the real target. Never claim hardware validation unless
 it was actually performed. Be economical with context: read repository files

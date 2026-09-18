@@ -48,8 +48,13 @@ la configuration lors des mises à jour normales. N'effectue jamais de full
 erase simplement pour déployer une nouvelle version applicative. Utilise l'OTA
 distante actuelle de ProgHard Link depuis le Device Manager lorsqu'elle est
 disponible. Isole raisonnablement le code spécifique au matériel du code
-applicatif. Ne modifie le cœur ou le framework ProgHard Link que si une
-limitation réelle est démontrée dans la version actuelle du dépôt.
+applicatif. Réutilise en priorité les mécanismes existants, mais considère
+aussi le développement d'applications comme un moyen d'identifier et
+d'améliorer les capacités génériques du framework. Si l'application révèle une
+fonction générique manquante, une limitation ou une incohérence, analyse-la et
+améliore le framework lorsque cette solution est préférable à un contournement
+spécifique à l'application. Préserve autant que raisonnablement possible la
+compatibilité avec les applications existantes et ajoute les tests appropriés.
 
 Compile et teste pour la cible réelle. Ne prétends jamais qu'une validation
 matérielle a réussi si elle n'a pas réellement été exécutée. Reste économe en
