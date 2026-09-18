@@ -27,6 +27,7 @@ compatibility.
 - [Use the Web Installer](docs/web-installer.md)
 - [Understand remote access](docs/remote-access.md)
 - [Build the firmware and server](docs/development.md)
+- [Follow the application development contract](docs/application-development.md)
 - [Modify and relink third-party firmware code](docs/third-party-relinking.md)
 
 ## Components
