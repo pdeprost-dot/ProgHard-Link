@@ -317,8 +317,11 @@ absence without an API regression.
 Its NTP settings use a separate `Preferences` namespace and survive normal OTA
 and reboot. It defines no separate JSON API. Its display driver is isolated
 behind `ClockDisplay`, with Waveshare-specific code in `WaveshareClockDisplay`.
-Its OTA behavior is inherited from the framework, including the current token
-UX and 1 MiB limitations documented above.
+Its OTA behavior is inherited from the framework. The ESP32-C6 ClockDemo binary
+of more than 1 MiB has been validated through the Device Manager upload flow
+without asking the user for the Device Token. The device-reported capacity was
+used, and the update preserved its Device ID, Device Token, Wi-Fi, enrollment
+and application configuration.
 
 ### Other useful references and gaps
 

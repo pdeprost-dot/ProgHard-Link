@@ -63,6 +63,11 @@ Do not start public certificate issuance until the apex and wildcard DNS names
 point to the intended server. Follow the complete
 [VPS installation guide](docs/vps-installation.md).
 
+## Develop an application with AI
+
+- [English AI application prompt](docs/AI-APPLICATION-PROMPT-EN.md)
+- [Prompt IA pour développer une application](docs/AI-APPLICATION-PROMPT-FR.md)
+
 ## Firmware releases
 
 The public firmware registry initially contains only ProgHard Link Base 0.2.3
