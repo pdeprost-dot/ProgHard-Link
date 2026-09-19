@@ -16,7 +16,7 @@ across reboots.
 - Board: `esp32:esp32:esp32c6` (ESP32C6 Dev Module), Arduino-ESP32 3.3.11
 - Flash: 8 MB
 - Partition scheme: `default_8MB` (3 MB application / 1.5 MB SPIFFS)
-- ProgHard Link library 0.4.11
+- ProgHard Link library 0.4.12
 - Arduino_GFX 1.6.7 (Waveshare still documents 1.5.9, which is not compatible
   with Arduino-ESP32 3.3.11)
 

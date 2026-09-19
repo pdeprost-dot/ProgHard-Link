@@ -82,7 +82,7 @@ test("Portal renders release metadata and public destinations", async () => {
   assert.match(response.text(), /https:\/\/admin\.example\.net\//);
   assert.match(response.text(), /https:\/\/install\.example\.net\//);
   assert.match(response.text(), /esp-&lt;deviceId&gt;\.example\.net/);
-  assert.match(response.text(), /ProgHard-Link-0\.4\.11\.zip/);
+  assert.match(response.text(), /ProgHard-Link-0\.4\.12\.zip/);
   assert.doesNotMatch(response.text(), /ESPwayBase/);
   assert.match(response.headers["content-security-policy"], /default-src 'self'/);
   assert.equal(response.headers["x-frame-options"], "DENY");
@@ -97,16 +97,16 @@ test("Portal serves its stylesheet only on the configured host", async () => {
 });
 
 test("Portal serves the current ProgHard Link Arduino archive", async () => {
-  const response = await request("/downloads/arduino/ProgHard-Link-0.4.11.zip");
+  const response = await request("/downloads/arduino/ProgHard-Link-0.4.12.zip");
   assert.equal(response.status, 200);
   assert.equal(
     response.headers["content-disposition"],
-    'attachment; filename="ProgHard-Link-0.4.11.zip"',
+    'attachment; filename="ProgHard-Link-0.4.12.zip"',
   );
-  assert.equal(response.body.length, 280038);
+  assert.equal(response.body.length, 280582);
   assert.equal(
     createHash("sha256").update(response.body).digest("hex"),
-    "f0e8291a49248fe8c0886c8ccee6c4e53436695a97ace8e35ef4217fef1c6e96",
+    "c27e3f60c786bb7aa8cdaeee57e211a6447df30c4b8f79fd57794c1636389fd0",
   );
   assert.equal(
     (await request("/downloads/arduino/ESPway-0.4.7.zip")).status,

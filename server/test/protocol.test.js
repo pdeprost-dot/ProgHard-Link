@@ -93,6 +93,20 @@ test("verifies a valid S2C frame", () => {
   assert.equal(verifyFrame(receiver, "S2C", wire, 4096).type, "cancel");
 });
 
+for (const direction of ["C2S", "S2C"]) {
+  test(`rejects a field after the signed ${direction} envelope`, () => {
+    const { wire, receiver } = signedFrame(direction);
+    const changed = Buffer.from(wire.toString().slice(0, -1) + ',"extra":"injected"}');
+    assert.equal(verifyFrame(receiver, direction, changed, 4096), null);
+  });
+
+  test(`rejects a duplicate key after the signed ${direction} envelope`, () => {
+    const { wire, receiver } = signedFrame(direction);
+    const changed = Buffer.from(wire.toString().slice(0, -1) + ',"streamId":"99"}');
+    assert.equal(verifyFrame(receiver, direction, changed, 4096), null);
+  });
+}
+
 test("rejects replay of the same sequence", () => {
   const { wire, receiver } = signedFrame("C2S");
   assert.ok(verifyFrame(receiver, "C2S", wire, 4096));

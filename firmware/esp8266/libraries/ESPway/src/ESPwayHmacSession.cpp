@@ -110,6 +110,24 @@ bool ESPwayHmacSession::verifyFrame(
     return false;
   }
 
+  char expectedSuffix[192];
+  const int expectedSuffixLength = snprintf(
+    expectedSuffix,
+    sizeof(expectedSuffix),
+    ",\"_espway\":{\"version\":\"%s\",\"sequence\":\"%s\",\"mac\":\"%s\"}}",
+    FRAME_PROTOCOL,
+    sequenceText,
+    macText
+  );
+  if (
+    expectedSuffixLength <= 0 ||
+    static_cast<size_t>(expectedSuffixLength) >= sizeof(expectedSuffix) ||
+    length - suffixOffset != static_cast<size_t>(expectedSuffixLength) ||
+    memcmp(payload + suffixOffset, expectedSuffix, expectedSuffixLength) != 0
+  ) {
+    return false;
+  }
+
   char header[96];
   const size_t originalLength = suffixOffset + 1;
   const int headerLength = snprintf(

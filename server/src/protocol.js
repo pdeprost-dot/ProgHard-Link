@@ -236,6 +236,11 @@ export function verifyFrame(session, direction, raw, maxBytes) {
 
   const sequence = BigInt(envelope.sequence);
   if (sequence !== session.expectedReceiveSequence) return null;
+  const expectedSuffix = Buffer.from(
+    `${FRAME_SUFFIX}{"version":"${FRAME_PROTOCOL}",` +
+      `"sequence":"${envelope.sequence}","mac":"${envelope.mac}"}}`,
+  );
+  if (!wire.subarray(suffixOffset).equals(expectedSuffix)) return null;
   const original = Buffer.concat([
     wire.subarray(0, suffixOffset),
     Buffer.from("}"),

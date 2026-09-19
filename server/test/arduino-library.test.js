@@ -15,7 +15,7 @@ import {
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const sourceRoot = repositoryLibraryRoot(repositoryRoot);
-const currentVersion = "0.4.11";
+const currentVersion = "0.4.12";
 const releaseRoot = new URL(
   `download-repository/arduino/ESPway/${currentVersion}/`,
   new URL("../../", import.meta.url),

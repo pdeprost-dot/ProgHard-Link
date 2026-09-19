@@ -6,7 +6,7 @@ ESP32 applications.
 
 ## Installation
 
-Install the public `ProgHard-Link-0.4.11.zip` release with **Sketch > Include Library >
+Install the public `ProgHard-Link-0.4.12.zip` release with **Sketch > Include Library >
 Add .ZIP Library...** in Arduino IDE. ProgHard Link requires:
 
 - ESP8266 Arduino Core 3.1.2 or Arduino-ESP32 Core 3.3.11;

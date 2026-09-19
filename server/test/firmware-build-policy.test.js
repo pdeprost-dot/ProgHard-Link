@@ -130,6 +130,12 @@ test("firmware retains authenticated HTTP OTA", async () => {
   assert.match(ota, /constantTimeEqual/);
 });
 
+test("firmware rejects bytes after the signed frame envelope", async () => {
+  const session = await source("ESPwayHmacSession.cpp");
+  assert.match(session, /length - suffixOffset != static_cast<size_t>\(expectedSuffixLength\)/);
+  assert.match(session, /memcmp\(payload \+ suffixOffset, expectedSuffix, expectedSuffixLength\) != 0/);
+});
+
 test("streaming OTA uses the next partition capacity instead of a universal firmware limit", async () => {
   const platform = await source("ESPwayPlatform.cpp");
   const streamHeader = await source("ESPwayStreamOta.h");

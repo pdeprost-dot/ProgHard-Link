@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "name": "ProgHard Link",
+  "version": "0.4.12",
+  "architectures": "esp8266,esp32",
+  "esp8266Core": "3.1.2",
+  "file": "ProgHard-Link-0.4.12.zip",
+  "size": 280582,
+  "sha256": "c27e3f60c786bb7aa8cdaeee57e211a6447df30c4b8f79fd57794c1636389fd0",
+  "status": "released"
+}

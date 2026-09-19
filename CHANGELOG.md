@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Rejected signed tunnel frames containing fields after the `_espway` envelope;
+  published the firmware-side fix in Arduino library 0.4.12.
+
 - Added authenticated user-firmware upload to the Device Manager. Devices now
   advertise their next OTA partition capacity, while the server applies an
   8 MiB operational ceiling and a conservative 1 MiB fallback for older
