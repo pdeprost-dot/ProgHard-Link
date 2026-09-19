@@ -52,6 +52,37 @@ test("stream broker keeps exactly one chunk in flight until its ACK", async () =
   assert.equal(bytes, 2065);
 });
 
+test("OTA OPEN allows partition preparation longer than a data ACK", async () => {
+  const broker = new TunnelBroker({ timeoutMs: 1000, maxStreamsPerDevice: 1 });
+  let dataFrames = 0;
+  const socket = { readyState: 1, espwaySend(message) {
+    if (message.type === "open") {
+      setTimeout(() => broker.receive("esp-test01", {
+        type: "ack", streamId: message.streamId, received: 0,
+      }), 5100);
+    } else if (message.type === "data") {
+      dataFrames++;
+      queueMicrotask(() => broker.receive("esp-test01", {
+        type: "ack", streamId: message.streamId, received: 512,
+      }));
+    } else if (message.type === "close") {
+      queueMicrotask(() => {
+        broker.receive("esp-test01", { type: "open", streamId: message.streamId, status: 200, headers: {} });
+        broker.receive("esp-test01", { type: "close", streamId: message.streamId });
+      });
+    }
+  }};
+  async function* chunks() { yield Buffer.alloc(512); }
+  const result = await broker.streamRequest(
+    { deviceId: "esp-test01", socket },
+    { method: "POST", path: "/ota/upload", headers: {}, otaSize: 512,
+      otaSha256: "a".repeat(64), otaProof: "b".repeat(64) },
+    chunks(), { timeoutMs: 10000 },
+  );
+  assert.equal(result.status, 200);
+  assert.equal(dataFrames, 1);
+});
+
 test("stream broker sends no DATA when the device rejects OTA OPEN", async () => {
   const broker = new TunnelBroker({ timeoutMs: 1000, maxStreamsPerDevice: 1 });
   let dataFrames = 0;

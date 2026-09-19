@@ -119,13 +119,13 @@ export class TunnelBroker {
       finish = reject;
     });
     try {
-      const waitForAck = (pending, expected) => new Promise((resolve, reject) => {
+      const waitForAck = (pending, expected, timeoutMs = 5000) => new Promise((resolve, reject) => {
         const timer = setTimeout(
           () => reject(Object.assign(
             new Error("ota ack timeout"),
             { statusCode: 504 },
           )),
-          5000,
+          timeoutMs,
         );
         pending.ack = (received, error) => {
           clearTimeout(timer);
@@ -141,7 +141,8 @@ export class TunnelBroker {
       });
       let sent = 0;
       let pending = this.pending.get(streamId);
-      const opened = waitForAck(pending, 0);
+      // The device erases its next OTA partition before acknowledging OPEN.
+      const opened = waitForAck(pending, 0, 30000);
       this.send(device.socket, {
         type: "open",
         streamId,

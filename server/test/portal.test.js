@@ -75,14 +75,14 @@ test("Portal renders release metadata and public destinations", async () => {
   assert.match(response.text(), /ProgHard Link/);
   assert.match(response.text(), /A secure remote platform for ESP8266 and ESP32 devices/);
   assert.match(response.text(), /Library version/);
-  assert.match(response.text(), /ESP8266, ESP32, ESP32-C3, ESP32-C6/);
+  assert.match(response.text(), /ESP8266, ESP32, ESP32-C3, ESP32-C6, ESP32-S3/);
   assert.match(response.text(), /<strong>Register<\/strong>/);
   assert.match(response.text(), /Node-RED/);
   assert.match(response.text(), /Connect <span>·<\/span> Configure/);
   assert.match(response.text(), /https:\/\/admin\.example\.net\//);
   assert.match(response.text(), /https:\/\/install\.example\.net\//);
   assert.match(response.text(), /esp-&lt;deviceId&gt;\.example\.net/);
-  assert.match(response.text(), /ProgHard-Link-0\.4\.12\.zip/);
+  assert.match(response.text(), /ProgHard-Link-0\.4\.13\.zip/);
   assert.doesNotMatch(response.text(), /ESPwayBase/);
   assert.match(response.headers["content-security-policy"], /default-src 'self'/);
   assert.equal(response.headers["x-frame-options"], "DENY");
@@ -97,16 +97,16 @@ test("Portal serves its stylesheet only on the configured host", async () => {
 });
 
 test("Portal serves the current ProgHard Link Arduino archive", async () => {
-  const response = await request("/downloads/arduino/ProgHard-Link-0.4.12.zip");
+  const response = await request("/downloads/arduino/ProgHard-Link-0.4.13.zip");
   assert.equal(response.status, 200);
   assert.equal(
     response.headers["content-disposition"],
-    'attachment; filename="ProgHard-Link-0.4.12.zip"',
+    'attachment; filename="ProgHard-Link-0.4.13.zip"',
   );
-  assert.equal(response.body.length, 280582);
+  assert.equal(response.body.length, 280808);
   assert.equal(
     createHash("sha256").update(response.body).digest("hex"),
-    "c27e3f60c786bb7aa8cdaeee57e211a6447df30c4b8f79fd57794c1636389fd0",
+    "e48c4d3ff99e9733dbabe33b4db38efa5da20220ee38871d073b5897d49e9733",
   );
   assert.equal(
     (await request("/downloads/arduino/ESPway-0.4.7.zip")).status,

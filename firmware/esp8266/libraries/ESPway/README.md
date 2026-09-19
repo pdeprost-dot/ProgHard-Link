@@ -6,7 +6,7 @@ ESP32 applications.
 
 ## Installation
 
-Install the public `ProgHard-Link-0.4.12.zip` release with **Sketch > Include Library >
+Install the public `ProgHard-Link-0.4.13.zip` release with **Sketch > Include Library >
 Add .ZIP Library...** in Arduino IDE. ProgHard Link requires:
 
 - ESP8266 Arduino Core 3.1.2 or Arduino-ESP32 Core 3.3.11;
@@ -20,6 +20,8 @@ Module with **Minimal SPIFFS (1.9 MB APP with OTA)**, and ESP32C6 Dev Module
 with **8 MB Flash**, **8M with SPIFFS (3 MB APP/1.5 MB SPIFFS)** and USB CDC
 enabled. The validated Waveshare ESP32-C6-Touch-LCD-1.47 display and touch
 hardware are not used by ProgHard Link Base.
+For an 8 MB ESP32-S3, use the ESP32S3 Dev Module profile with **8M with SPIFFS**
+and **USB CDC On Boot: Enabled**. Base does not use camera or microphone hardware.
 
 ## Basic use
 

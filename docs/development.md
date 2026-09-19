@@ -16,7 +16,7 @@ The first public firmware baseline was built with:
 
 The core packages resolve the following compiler toolchains: ESP8266
 `xtensa-lx106-elf-gcc` package `3.1.0-gcc10.3-e5f9fec` (GCC 10.3.0), and
-ESP32 `esp-x32` plus ESP32-C3/ESP32-C6 `esp-rv32` package `2601` (GCC 14.2.0,
+ESP32/ESP32-S3 `esp-x32` plus ESP32-C3/ESP32-C6 `esp-rv32` package `2601` (GCC 14.2.0,
 Espressif crosstool-NG `esp-14.2.0_20260121`). These are installed by the
 pinned core releases rather than downloaded separately by the project.
 

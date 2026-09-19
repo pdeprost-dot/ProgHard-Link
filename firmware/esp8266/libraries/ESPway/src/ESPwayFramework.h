@@ -14,7 +14,7 @@
 #include "ESPwayStreamOta.h"
 #include "ESPwayEnrollment.h"
 
-#define ESPWAY_FRAMEWORK_VERSION "0.4.12"
+#define ESPWAY_FRAMEWORK_VERSION "0.4.13"
 
 class ESPwayFramework {
  public:

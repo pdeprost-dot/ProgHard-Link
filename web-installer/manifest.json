@@ -23,6 +23,11 @@
       "chipFamily": "ESP32-C6",
       "improv": false,
       "parts": [{ "path": "/firmware/esp32-c6/espway-base/0.2.3/firmware.bin", "offset": 0 }]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "improv": false,
+      "parts": [{ "path": "/firmware/esp32-s3/espway-base/0.2.3/firmware.bin", "offset": 0 }]
     }
   ]
 }

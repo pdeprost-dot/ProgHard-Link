@@ -5,8 +5,8 @@ remote access through an outbound authenticated tunnel, a multi-user Device
 Manager, OTA updates and a browser-based firmware installer. Local operation
 does not depend on Internet access.
 
-The first public baseline is ProgHard Link Base 0.2.3 with Arduino library
-0.4.12. It supports ESP8266, ESP32, ESP32-C3 and ESP32-C6. The historical technical names
+The current public Base release is ProgHard Link Base 0.2.3 with Arduino library
+0.4.13. It supports ESP8266, ESP32, ESP32-C3, ESP32-C6 and ESP32-S3. The historical technical names
 `ESPWAY_*`, `ESPway.h`, `espway-base` and `espway-tunnel/2` remain stable for
 compatibility.
 
@@ -16,7 +16,7 @@ compatibility.
 | --- | --- |
 | Server | `0.5.1` |
 | ProgHard Link Base | `0.2.3` |
-| Arduino library | `0.4.12` |
+| Arduino library | `0.4.13` |
 | Tunnel protocol | `espway-tunnel/2` |
 
 ## Start here
@@ -70,8 +70,8 @@ point to the intended server. Follow the complete
 
 ## Firmware releases
 
-The public firmware registry initially contains only ProgHard Link Base 0.2.3
-for ESP8266, ESP32, ESP32-C3 and ESP32-C6. Validate all sizes, hashes, manifests and
+The public firmware registry currently contains ProgHard Link Base 0.2.3
+for ESP8266, ESP32, ESP32-C3, ESP32-C6 and ESP32-S3. Validate all sizes, hashes, manifests and
 release locks with `node tools/validate-firmware-registry.js`.
 
 ## Experimental Polar H10 / ECG demonstration
@@ -85,8 +85,8 @@ concerning a person's health.**
 
 ## Project status and roadmap
 
-ProgHard Link is a hobby/open-source project. ESP32-S3 is a planned hardware
-target but is not currently supported. ESP32-C6 is validated on a Waveshare
+ProgHard Link is a hobby/open-source project. ESP32-S3 is supported by Base.
+ESP32-C6 is validated on a Waveshare
 ESP32-C6-Touch-LCD-1.47; its display and touch hardware are not used by Base. A shared public demo design
 is documented as future work in [the roadmap](docs/roadmap.md); no public demo
 service is promised or available yet.

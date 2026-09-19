@@ -15,6 +15,7 @@ validation are recorded separately and should not be treated as equivalent.
 | ESP8266 | 3.1.2 | NodeMCU 1.0 (ESP-12E Module) | Yes | ESP8266 examples | Previously exercised on ESP8266 |
 | ESP32-C3 | 3.3.11 | ESP32C3 Dev Module | Yes | ESPway and supported ESP32 examples | ESPway, MQTT, Polar BLE/PMD, HTTP/WAN and MQTT ECG |
 | ESP32-C6 | 3.3.11 | ESP32C6 Dev Module | Yes | ProgHard Link Base | Waveshare ESP32-C6-Touch-LCD-1.47 end-to-end Base workflow |
+| ESP32-S3 | 3.3.11 | ESP32S3 Dev Module, 8 MB flash, 8M with SPIFFS, USB CDC | Yes | ProgHard Link Base | Seeed Studio ESP32-S3: provisioning, enrollment, local/remote UI, tunnel and remote OTA validated on hardware |
 | ESP32 | 3.3.11 | ESP32 Dev Module | Yes | ESPway and AES-GCM | None documented |
 
 For the tested 4 MB ESP32-C3, select **Minimal SPIFFS (1.9 MB APP with
@@ -26,6 +27,10 @@ For the tested 8 MB ESP32-C6, select **8M with SPIFFS (3 MB APP/1.5 MB
 SPIFFS)**, **8 MB Flash** and **USB CDC On Boot: Enabled**. The validated board
 is Waveshare ESP32-C6-Touch-LCD-1.47. Its display and touch hardware are not
 used by ProgHard Link Base.
+
+For the 8 MB ESP32-S3 Base build, select **8M with SPIFFS (3 MB APP/1.5 MB
+SPIFFS)**, **8 MB Flash** and **USB CDC On Boot: Enabled**. Camera and
+microphone features are outside Base.
 
 Required Arduino libraries remain:
 

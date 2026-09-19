@@ -34,14 +34,14 @@ test("production installer serves its catalog and proxies Registry firmware", as
   assert.doesNotMatch(caddy, /@installerFiles/);
 });
 
-test("installer catalog selects all four supported chip families automatically", async () => {
+test("installer catalog selects all five supported chip families automatically", async () => {
   const manifest = JSON.parse(await readFile(catalogUrl, "utf8"));
   assert.equal(manifest.name, "ProgHard Link Base");
-  assert.deepEqual(manifest.builds.map((build) => build.chipFamily), ["ESP8266", "ESP32", "ESP32-C3", "ESP32-C6"]);
+  assert.deepEqual(manifest.builds.map((build) => build.chipFamily), ["ESP8266", "ESP32", "ESP32-C3", "ESP32-C6", "ESP32-S3"]);
   for (const build of manifest.builds) {
     assert.equal(build.parts.length, 1);
     assert.equal(build.parts[0].offset, 0);
-    assert.match(build.parts[0].path, /^\/firmware\/(esp8266|esp32|esp32-c3|esp32-c6)\/espway-base\/0\.2\.3\/firmware\.bin$/);
+    assert.match(build.parts[0].path, /^\/firmware\/(esp8266|esp32|esp32-c3|esp32-c6|esp32-s3)\/espway-base\/0\.2\.3\/firmware\.bin$/);
   }
 });
 
@@ -75,7 +75,7 @@ test("ProgHard Link Base release contains the validated firmware image", async (
 });
 
 test("ESP32 installer releases use merged offset-zero images", async () => {
-  for (const hardware of ["esp32", "esp32-c3", "esp32-c6"]) {
+  for (const hardware of ["esp32", "esp32-c3", "esp32-c6", "esp32-s3"]) {
     const release = new URL(`firmware-repository/${hardware}/espway-base/0.2.3/`, repositoryRoot);
     const internal = JSON.parse(await readFile(new URL("manifest.json", release), "utf8"));
     const installer = JSON.parse(await readFile(new URL("web-installer-manifest.json", release), "utf8"));

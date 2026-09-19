@@ -46,7 +46,7 @@ are introduced.
 `firmware-repository` is the single filesystem source of truth for firmware.
 Each artifact is addressed by hardware, application and application version,
 then verified by its immutable size and SHA-256. The model is hardware-neutral;
-the current public registry contains ESP8266, ESP32, ESP32-C3 and ESP32-C6 artifacts,
+the current public registry contains ESP8266, ESP32, ESP32-C3, ESP32-C6 and ESP32-S3 artifacts,
 without embedding those values in registry logic.
 
 The Node server exposes read-only release metadata and explicit firmware files.

@@ -5,7 +5,7 @@ Choose one of two paths:
 - use an existing trusted ProgHard Link instance and start at the Web Installer;
 - self-host the complete stack by following [VPS installation](vps-installation.md).
 
-For a first device, use a sacrificial ESP8266, ESP32, ESP32-C3 or ESP32-C6 and a USB data
+For a first device, use a sacrificial ESP8266, ESP32, ESP32-C3, ESP32-C6 or ESP32-S3 and a USB data
 cable. In Chrome or Edge, open the instance's `install` hostname, select
 **Install ProgHard Link**, confirm ProgHard Link Base 0.2.3 and erase the device.
 
