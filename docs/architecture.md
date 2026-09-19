@@ -51,8 +51,10 @@ without embedding those values in registry logic.
 
 The Node server exposes read-only release metadata and explicit firmware files.
 The Web Installer manifest is derived from the ProgHard Link Base registry manifest.
-Remote OTA resolves a released registry identity before sending exact version,
-size, SHA-256 and URL through tunnel v2.
+Registry-backed remote OTA resolves a released identity before sending exact
+version, size, SHA-256 and URL through tunnel v2. Device Manager also accepts a
+user-supplied `.bin` for authenticated remote streaming OTA without adding it
+to the Registry.
 
 ## Device Manager V1
 
@@ -60,7 +62,8 @@ The Device Manager is an admin-host-only product layer. It merges the
 persistent authorized-device file with the in-memory tunnel registry, so
 offline devices remain visible while connection state stays live. It uses the
 Firmware Registry for semantic current/latest status and exact released OTA
-targets. See `device-manager.md` for its API and security boundary.
+targets, and offers a separate upload path for a user's `.bin`. See
+`device-manager.md` for its API and security boundary.
 
 ## Authentication and multi-user V1
 

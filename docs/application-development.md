@@ -301,8 +301,10 @@ Before implementing a new ProgHard Link application:
 6. Keep application configuration separate and schema-versioned.
 7. Keep hardware-specific code outside the generic framework and application
    logic where practical.
-8. Modify ProgHard Link core only when a concrete framework limitation has
-   been demonstrated against the current code.
+8. For third-party application work, treat the server and Arduino library as
+   published dependencies. Use their public extension points without changing
+   their code or security rules. Document missing generic capabilities and
+   propose upstream improvements separately.
 
 ## 12. Current example assessment
 

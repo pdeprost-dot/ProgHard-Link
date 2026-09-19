@@ -44,13 +44,13 @@ Preserve the Device ID, Device Token, Wi-Fi, enrollment, ownership, and
 configuration during normal updates. Never perform a full erase merely to
 deploy a new application version. Use the current ProgHard Link remote OTA
 workflow in Device Manager when available. Keep hardware-specific code
-reasonably isolated from application logic. Prefer the existing mechanisms,
-but also treat application development as a way to identify and improve the
-framework's generic capabilities. If the application reveals a missing generic
-feature, limitation, or inconsistency, analyze it and improve the framework
-when that is preferable to an application-specific workaround. Preserve
-compatibility with existing applications as far as reasonably possible and add
-appropriate tests.
+reasonably isolated from application logic. For a third-party user, the
+ProgHard Link server and Arduino library are dependencies to use as published.
+Develop the application through their public APIs and extension points,
+including the functions intended to be overridden; do not change their code
+or security rules. If a generic capability is missing or an inconsistency
+appears, explain the limitation and propose an upstream improvement without
+implementing it as part of this application work.
 
 Compile and test for the real target. Never claim hardware validation unless
 it was actually performed. Be economical with context: read repository files

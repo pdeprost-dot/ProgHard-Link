@@ -61,6 +61,7 @@ POST /api/enrollments/:temporaryToken/claim
 POST /api/admin/devices/:deviceId/enable
 POST /api/admin/devices/:deviceId/disable
 POST /api/admin/devices/:deviceId/ota
+POST /api/admin/devices/:deviceId/ota-upload
 ```
 
 Devices are normally created through Enrollment V1. A fresh device creates its
@@ -101,12 +102,21 @@ artifacts are excluded by the Registry rules. Unsupported version strings are
 reported rather than guessed.
 
 OTA requires an online, metadata-verified tunnel v2 device with the
-`http-ota` capability. The browser submits only the target version. The server
-resolves that version to one exact released artifact, then sends its exact
+`http-ota` capability. For a Registry update, the browser submits the target
+version. The server resolves it to one exact released artifact and sends its
 application, version, size, SHA-256 and controlled Registry URL through the
-existing OTA path. The confirmation dialog shows these values before sending.
-The UI can explicitly reinstall the current released version; it never starts
-an OTA automatically and never accepts an arbitrary URL.
+existing OTA path. The UI can explicitly reinstall the current released
+version; it never starts an OTA automatically or accepts an arbitrary URL.
+
+**Update firmware** also accepts a user's `.bin`. Device Manager shows the
+file size and the device's announced `otaMaxBytes` before upload. The request
+is authorized by the user's session, device ownership and CSRF protection;
+the server uses the stored Device Token internally to create the OTA proof.
+The user never enters that token. The firmware is streamed through tunnel v2,
+then the UI tracks validation, reboot and reconnection. The effective limit is
+the smaller of the reported device capacity and the server's 8 MiB operational
+ceiling. Older firmware without a capacity announcement retains a conservative
+1 MiB limit.
 
 ## Current limitations
 

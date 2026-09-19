@@ -24,10 +24,12 @@ The ESP-to-server tunnel is plain WebSocket by design; its confidentiality and
 integrity properties come from the authenticated application protocol. Public
 browser access remains HTTPS through Caddy.
 
-Remote OTA has a separate operator credential. The endpoint is always handled
-by the server and fails closed if that credential is not configured. Firmware
-paths are canonicalized inside a read-only controlled repository and the
-device verifies SHA-256 before finalizing an update.
+The operator-initiated Registry OTA endpoint has a separate credential and
+fails closed if it is not configured. Registry firmware paths are canonicalized
+inside a read-only controlled repository. Device Manager's user `.bin` upload
+instead requires a human session, device ownership and CSRF protection; the
+server retrieves the Device Token internally and computes the OTA proof. The
+device verifies SHA-256 before finalizing either update.
 
 Interactive OTA derives `otaKey = HMAC-SHA256(deviceToken,
 "ESPWAY-OTA-KEY-1")`. A one-use, 60-second challenge binds the device ID,
@@ -38,9 +40,11 @@ constant time before `Update.begin()` and verifies the streamed digest before
 
 The embedded browser implementation has no CDN dependency or dynamic code and
 is checked against standard SHA-256/HMAC vectors plus the same complete OTA
-vector used by Node and the ESP hardware self-test. The server applies a
-separate 1 MiB upload limit, one active OTA per device, ACK backpressure and a
-bounded timeout. Firmware bytes are not accumulated in Node or ESP RAM.
+vector used by Node and the ESP hardware self-test. Recent devices announce
+their next OTA partition capacity. The server applies an 8 MiB operational
+ceiling, a conservative 1 MiB fallback for older firmware without an announced
+capacity, one active OTA per device, ACK backpressure and a bounded timeout.
+Firmware bytes are not accumulated in Node or ESP RAM.
 
 Tokens and passwords must never be logged or committed. The current release is
 small and materially tested but has not received an independent security
