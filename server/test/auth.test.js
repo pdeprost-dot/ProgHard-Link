@@ -1,16 +1,19 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { once } from "node:events";
-import { mkdtemp, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import http from "node:http";
+import { runInNewContext } from "node:vm";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { AuthService } from "../src/auth/auth-service.js";
+import { AuthService, DUMMY_PASSWORD_HASH } from "../src/auth/auth-service.js";
 import { openAuthDatabase } from "../src/auth/database.js";
+import { requestIp } from "../src/auth/http-auth.js";
+import { verifyPassword } from "../src/auth/passwords.js";
 import { AuthorizedDeviceRegistry } from "../src/authorized-devices.js";
-import { createEspwayServer } from "../src/server.js";
+import { createEspwayServer, safeRedirectPath } from "../src/server.js";
 
 const adminHost = "admin.devices.example.com";
 const repositoryRoot = new URL("../../", import.meta.url);
@@ -100,6 +103,37 @@ test("login rejects bad credentials and returns a hardened cookie", async () => 
   assert.doesNotMatch(header, /Domain=/);
 });
 
+test("missing users use a structurally valid scrypt placeholder", async () => {
+  const parts = DUMMY_PASSWORD_HASH.split("$");
+  assert.equal(parts.length, 7);
+  assert.equal(Buffer.from(parts[5], "base64").length, 16);
+  assert.equal(Buffer.from(parts[6], "base64").length, 32);
+  assert.equal(await verifyPassword("wrong-password", DUMMY_PASSWORD_HASH), false);
+});
+
+test("Caddy overwrites forwarded IP and only private proxy peers are trusted", async () => {
+  const caddy = await readFile(fileURLToPath(new URL("../../caddy/Caddyfile", import.meta.url)), "utf8");
+  assert.match(caddy, /header_up X-Forwarded-For \{remote_host\}/);
+  const headers = { "x-forwarded-for": "198.51.100.7" };
+  assert.equal(requestIp({ socket: { remoteAddress: "172.18.0.2" }, headers }), "198.51.100.7");
+  assert.equal(requestIp({ socket: { remoteAddress: "203.0.113.9" }, headers }), "203.0.113.9");
+  assert.equal(requestIp({ socket: { remoteAddress: "172.18.0.2" }, headers: { "x-forwarded-for": "198.51.100.7, 203.0.113.9" } }), "172.18.0.2");
+});
+
+test("login and access-ticket redirects remain local", async () => {
+  const source = await readFile(fileURLToPath(new URL("../public/login.js", import.meta.url)), "utf8");
+  const browserPath = runInNewContext(`${source}\nsafeRedirectPath`, {
+    document: { querySelector: () => ({ addEventListener() {} }) },
+    location: { origin: "https://admin.example.test" }, URL,
+  });
+  for (const candidate of ["//evil.example", "/\\evil.example", "/a\\b", "/\tevil.example", "https://evil.example"]) {
+    assert.equal(safeRedirectPath(candidate), "/");
+    assert.equal(browserPath(candidate), "/");
+  }
+  assert.equal(safeRedirectPath("/devices/esp-aaaaaa?view=1"), "/devices/esp-aaaaaa?view=1");
+  assert.equal(browserPath("/devices/esp-aaaaaa?view=1"), "/devices/esp-aaaaaa?view=1");
+});
+
 test("users receive only their devices and known foreign IDs remain hidden", async () => {
   const a = await login("user-a", "user-a-password-long");
   const list = await authenticated(a, "/api/admin/devices");
@@ -140,6 +174,15 @@ test("a user-created device is automatically owned and foreign users cannot disc
   assert.equal(app.auth.canAccessDevice(userA, "esp-a1a1a1"), true);
   const b = await login("user-b", "user-b-password-long");
   assert.equal((await authenticated(b, "/api/admin/devices/esp-a1a1a1")).status, 404);
+});
+
+test("duplicate device creation cannot revoke existing ownership", async () => {
+  const a = await login("user-a", "user-a-password-long");
+  assert.equal((await authenticated(a, "/api/admin/devices", { method: "POST", body: { deviceName: "Missing ID" } })).status, 400);
+  const duplicate = await authenticated(a, "/api/admin/devices", { method: "POST", body: { deviceId: "esp-aaaaaa", deviceName: "Existing" } });
+  assert.equal(duplicate.status, 409);
+  assert.equal(app.auth.canAccessDevice(userA, "esp-aaaaaa"), true);
+  assert.equal((await authenticated(a, "/api/admin/devices/esp-aaaaaa")).status, 200);
 });
 
 test("personal API tokens authorize only owned remote device hosts and can be revoked", async () => {

@@ -506,8 +506,12 @@ async function serveEnrollment(req, res, url, enrollments, authorizedDevices, au
   return true;
 }
 
-function safeRedirectPath(value) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/";
+export function safeRedirectPath(value) {
+  if (typeof value !== "string" || !value.startsWith("/") ||
+      value.startsWith("//") || /[\\\u0000-\u001f\u007f]/.test(value)) return "/";
+  try {
+    return new URL(value, "https://local.invalid").origin === "https://local.invalid" ? value : "/";
+  } catch { return "/"; }
 }
 
 function validCsrf(req, config) {
@@ -703,12 +707,14 @@ async function serveDeviceManager(req, res, url, manager, config, auth = null) {
     try {
       const ownerId = actor?.role === "admin" && input.ownerUserId ? input.ownerUserId : actor?.id;
       if (auth && !ownerId) throw Object.assign(new Error("owner_required"), { statusCode: 400 });
+      const alreadyOwned = auth && typeof input.deviceId === "string" &&
+        auth.deviceUsers(input.deviceId).some((user) => user.id === ownerId);
       if (auth) auth.assignDevice(ownerId, input.deviceId);
       try {
         const created = await manager.create(input);
         auth?.audit(actor, "device.create", "device", input.deviceId, "success", requestIp(req));
         sendJson(res, 201, created);
-      } catch (error) { if (auth) auth.unassignDevice(ownerId, input.deviceId); throw error; }
+      } catch (error) { if (auth && !alreadyOwned) auth.unassignDevice(ownerId, input.deviceId); throw error; }
     } catch (error) {
       sendJson(res, error.statusCode || 500, { error: error.message });
     }

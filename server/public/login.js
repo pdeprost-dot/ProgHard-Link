@@ -1,3 +1,11 @@
+function safeRedirectPath(value) {
+  if (typeof value !== "string" || !value.startsWith("/") ||
+      value.startsWith("//") || /[\\\u0000-\u001f\u007f]/.test(value)) return "/";
+  try {
+    return new URL(value, location.origin).origin === location.origin ? value : "/";
+  } catch { return "/"; }
+}
+
 const form = document.querySelector("#login-form");
 const error = document.querySelector("#error");
 form.addEventListener("submit", async (event) => {
@@ -14,6 +22,6 @@ form.addEventListener("submit", async (event) => {
     });
     if (!response.ok) throw new Error(response.status === 429 ? "Too many attempts. Try again later." : "Invalid username or password.");
     const next = new URLSearchParams(location.search).get("next");
-    location.href = next?.startsWith("/") && !next.startsWith("//") ? next : "/";
+    location.href = safeRedirectPath(next);
   } catch (cause) { error.textContent = cause.message; }
 });

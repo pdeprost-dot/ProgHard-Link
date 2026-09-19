@@ -1,5 +1,17 @@
+import { BlockList, isIP } from "node:net";
+
 export const SESSION_COOKIE = "espway_session";
 export const DEVICE_COOKIE = "espway_device_session";
+
+const dockerPeers = new BlockList();
+dockerPeers.addSubnet("10.0.0.0", 8);
+dockerPeers.addSubnet("172.16.0.0", 12);
+dockerPeers.addSubnet("192.168.0.0", 16);
+
+function trustedProxyPeer(address) {
+  const ipv4 = address?.startsWith("::ffff:") ? address.slice(7) : address;
+  return isIP(ipv4) === 4 && dockerPeers.check(ipv4);
+}
 
 export function parseCookies(req) {
   const result = {};
@@ -15,7 +27,10 @@ export function cookie(name, value, { maxAge = 0 } = {}) {
 }
 
 export function requestIp(req) {
-  return req.socket.remoteAddress || "unknown";
+  const peer = req.socket.remoteAddress || "unknown";
+  const forwarded = req.headers["x-forwarded-for"];
+  return trustedProxyPeer(peer) && typeof forwarded === "string" && isIP(forwarded)
+    ? forwarded : peer;
 }
 
 export function bearer(req) {

@@ -26,6 +26,27 @@ test("ESPWAY_DOMAIN is normalized and malformed domains fail closed", () => {
     assert.throws(() => loadConfig({ ESPWAY_DOMAIN: domain }), /invalid_espway_domain/);
 });
 
+test("invalid numeric environment settings fail explicitly", () => {
+  const settings = [
+    "PORT", "ESPWAY_ENROLLMENT_TTL_MS", "ESPWAY_REQUEST_TIMEOUT_MS",
+    "ESPWAY_MAX_BODY_BYTES", "ESPWAY_MAX_OTA_UPLOAD_BYTES",
+    "ESPWAY_LEGACY_OTA_MAX_BYTES", "ESPWAY_OTA_UPLOAD_TIMEOUT_MS",
+    "ESPWAY_MAX_STREAMS_PER_DEVICE", "ESPWAY_HEARTBEAT_INTERVAL_MS",
+    "ESPWAY_HEARTBEAT_TIMEOUT_MS", "ESPWAY_TELEMETRY_INTERVAL_MS",
+    "ESPWAY_TELEMETRY_TIMEOUT_MS", "ESPWAY_TELEMETRY_STALE_AFTER_MS",
+    "ESPWAY_TELEMETRY_INITIAL_JITTER_MS", "ESPWAY_TELEMETRY_MAX_CONCURRENT_POLLS",
+    "ESPWAY_MAX_FIRMWARE_BYTES", "ESPWAY_SESSION_TTL_MS",
+    "ESPWAY_DEVICE_SESSION_TTL_MS",
+  ];
+  for (const name of settings) {
+    for (const invalid of ["NaN", "Infinity", "-1", "1.5", "9007199254740992", " ", "0x10", null])
+      assert.throws(() => loadConfig({ [name]: invalid }), new RegExp(`invalid_${name.toLowerCase()}`));
+  }
+  assert.throws(() => loadConfig({ ESPWAY_MAX_BODY_BYTES: "0" }), /invalid_espway_max_body_bytes/);
+  assert.throws(() => loadConfig({ PORT: "65536" }), /invalid_port/);
+  assert.equal(loadConfig({ ESPWAY_TELEMETRY_INITIAL_JITTER_MS: "0" }).telemetryInitialJitterMs, 0);
+});
+
 test("an empty data directory gets a private empty device registry", async () => {
   const directory = await mkdtemp(join(tmpdir(), "espway-empty-data-"));
   const registryPath = join(directory, "nested", "devices.json");

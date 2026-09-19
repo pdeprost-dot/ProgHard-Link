@@ -8,7 +8,10 @@
 (server_proxy) {
 	@internal path /internal/*
 	respond @internal 404
-	reverse_proxy server:3000
+	reverse_proxy server:3000 {
+		# Replace any client-supplied forwarding value with the actual peer address.
+		header_up X-Forwarded-For {remote_host}
+	}
 }
 
 {$ESPWAY_DOMAIN} {

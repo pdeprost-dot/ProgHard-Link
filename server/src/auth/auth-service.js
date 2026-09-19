@@ -4,6 +4,7 @@ import { hashPassword, validatePassword, verifyPassword } from "./passwords.js";
 
 const USERNAME_RE = /^[a-z0-9][a-z0-9._-]{2,31}$/;
 const ROLES = new Set(["admin", "user"]);
+export const DUMMY_PASSWORD_HASH = "scrypt$v=1$N=32768$r=8$p=1$AAAAAAAAAAAAAAAAAAAAAA==$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 const now = () => new Date().toISOString();
 const error = (message, statusCode) => Object.assign(new Error(message), { statusCode });
@@ -107,8 +108,7 @@ export class AuthService {
     if (keys.some((key) => this.failures.get(key)?.blockedUntil > Date.now()))
       throw error("login_rate_limited", 429);
     const row = this.db.prepare("SELECT * FROM users WHERE username=? COLLATE NOCASE").get(normalized);
-    const placeholder = "scrypt$v=1$N=32768$r=8$p=1$$AAAAAAAAAAAAAAAAAAAAAA==$$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-    const valid = await verifyPassword(password, row?.password_hash || placeholder);
+    const valid = await verifyPassword(password, row?.password_hash || DUMMY_PASSWORD_HASH);
     if (!row || row.enabled !== 1 || !valid) {
       for (const key of keys) {
         const failure = this.failures.get(key);
