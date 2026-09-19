@@ -446,6 +446,41 @@ test("OTA refuses offline devices and devices without verified capability", asyn
   })).json().error, "http_ota_not_supported");
 });
 
+test("Device Manager distinguishes Registry releases from manual .bin OTA", async () => {
+  const script = (await request("/admin.js")).raw;
+  assert.match(script, /No matching Firmware Registry release; you can still upload a \.bin file/);
+  assert.doesNotMatch(script, /No compatible release/);
+  assert.match(script, /Install from Firmware Registry/);
+  assert.match(script, /Upload your \.bin file/);
+  assert.match(script, /Installed application version/);
+  assert.match(script, /Latest matching Registry version/);
+  assert.match(script, /state === "no_compatible_release" \? "None" : "Unavailable"/);
+});
+
+test("OTA progress and success distinguish upload, validation, restart and ONLINE return", async () => {
+  const script = (await request("/admin.js")).raw;
+  assert.match(script, /Uploading \.bin to server:/);
+  assert.match(script, /File uploaded to server\. Transferring to device and validating/);
+  assert.match(script, /Firmware validated by device\. Waiting for restart/);
+  assert.match(script, /Device restarting\. Waiting for reconnection/);
+  assert.match(script, /device\.online && device\.connectedSince !== previousConnectedSince/);
+  assert.match(script, /summary\.textContent = otaNotice\?\.deviceId === device\.deviceId/);
+  for (const section of [
+    script.slice(script.indexOf("function confirmOta"), script.indexOf("function formatBytes")),
+    script.slice(script.indexOf("function updateFirmware"), script.indexOf("function changeEnabled")),
+  ]) assert.ok(section.indexOf("await waitForReconnect") < section.indexOf("otaNotice = { deviceId:"));
+  assert.doesNotMatch(script, /OTA accepted by the device/);
+});
+
+test("OTA error messages explain known causes and retain an unknown-code fallback", async () => {
+  const script = (await request("/admin.js")).raw;
+  for (const code of ["device_offline", "http_ota_not_supported", "ota_already_active",
+    "firmware_exceeds_ota_capacity", "firmware_registry_unavailable", "ota_challenge_failed"])
+    assert.match(script, new RegExp(`${code}:`));
+  assert.match(script, /Firmware update could not be completed \(\$\{error\.message\}\)\. Please retry/);
+  assert.match(script, /throw new Error\(otaFriendlyError\(error\)\)/);
+});
+
 test("Device Manager streams a user binary with server-side device authorization", async () => {
   const firmware = Buffer.alloc(1024 * 1024 + 17, 0x5a);
   const digest = (await import("node:crypto")).createHash("sha256").update(firmware).digest("hex");

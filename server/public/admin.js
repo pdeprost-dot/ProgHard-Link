@@ -9,6 +9,7 @@ let confirmAction = null;
 let currentUser = null;
 let csrfToken = "";
 let enrollmentFinished = false;
+let otaNotice = null;
 
 function text(value, fallback = "—") {
   return value === undefined || value === null || value === "" ? fallback : String(value);
@@ -69,7 +70,9 @@ function firmwareLabel(device) {
   const labels = {
     latest: "Up to date",
     update_available: "Update available",
-    no_compatible_release: "No compatible release",
+    no_compatible_release: device.online && device.capabilities?.includes("http-ota")
+      ? "No matching Firmware Registry release; you can still upload a .bin file."
+      : "No matching Firmware Registry release.",
     unknown_application: "Unknown application",
     unsupported_version: "Unsupported version",
   };
@@ -142,7 +145,7 @@ function deviceCard(device) {
   card.append(node("p", { className: "device-id", textContent: device.deviceId }));
   card.append(node("p", {
     className: "metadata",
-    textContent: `Firmware ${text(device.applicationVersion)} · ${firmwareLabel(device)}`,
+    textContent: `Installed application version ${text(device.applicationVersion)} · ${firmwareLabel(device)}`,
   }));
   card.append(node("p", {
     className: "telemetry-summary",
@@ -169,7 +172,7 @@ function addField(list, label, value) {
 }
 
 function showDetail(device) {
-  summary.textContent = "";
+  summary.textContent = otaNotice?.deviceId === device.deviceId ? otaNotice.message : "";
   const panel = node("section", { className: "panel" });
   panel.append(statusLabel(device));
   panel.append(node("h1", { textContent: text(device.deviceName, "Unnamed device") }));
@@ -179,7 +182,7 @@ function showDetail(device) {
     ["Device name", device.deviceName],
     ["Hardware", device.hardware],
     ["Application", applicationLabel(device.application)],
-    ["Firmware", device.applicationVersion],
+    ["Installed application version", device.applicationVersion],
     ["Framework", device.frameworkVersion],
     ["Transport", device.transport],
     ["Protocol", device.tunnelProtocol],
@@ -187,7 +190,8 @@ function showDetail(device) {
     ["Capabilities", device.capabilities?.join(", ")],
     ["Connected since", device.connectedSince ? dateLabel(device.connectedSince) : undefined],
     ["Last seen", dateLabel(device.lastSeen)],
-    ["Latest released", device.firmware?.latestReleasedVersion],
+    ["Latest matching Registry version", device.firmware?.latestReleasedVersion ??
+      (device.firmware?.state === "no_compatible_release" ? "None" : "Unavailable")],
     ["Firmware status", firmwareLabel(device)],
   ]) addField(fields, label, value);
   panel.append(fields);
@@ -286,12 +290,12 @@ function showDetail(device) {
   deleteButton.addEventListener("click", () => deleteDevice(device));
   actions.append(deleteButton);
   if (device.online && device.firmware?.latest) {
-    const otaButton = node("button", { type: "button", textContent: "Install released firmware" });
+    const otaButton = node("button", { type: "button", textContent: "Install from Firmware Registry" });
     otaButton.addEventListener("click", () => confirmOta(device));
     actions.append(otaButton);
   }
   if (device.online && device.capabilities?.includes("http-ota")) {
-    const uploadButton = node("button", { type: "button", textContent: "Update firmware" });
+    const uploadButton = node("button", { type: "button", textContent: "Upload your .bin file" });
     uploadButton.addEventListener("click", () => updateFirmware(device));
     actions.append(uploadButton);
   }
@@ -356,26 +360,58 @@ function deleteDevice(device) {
 
 function confirmOta(device) {
   const target = device.firmware.latest;
+  otaNotice = null;
+  summary.textContent = "";
+  const status = node("p", { id: "ota-status", role: "status", textContent: "Ready to request the Registry release." });
   const fragment = node("div", {}, [
     node("h2", { textContent: `Update ${device.deviceId}` }),
     node("p", {
-      textContent: `Current: ${applicationLabel(device.application)} ${text(device.applicationVersion)}`,
+      textContent: `Installed application version: ${applicationLabel(device.application)} ${text(device.applicationVersion)}`,
     }),
     node("p", {
-      textContent: `Target: ${applicationLabel(target.application)} ${target.applicationVersion}`,
+      textContent: `Registry version to install: ${applicationLabel(target.application)} ${target.applicationVersion}`,
     }),
     node("p", { textContent: `Size: ${target.size} bytes` }),
     node("p", {}, [node("code", { textContent: `SHA-256: ${target.sha256}` })]),
+    status,
   ]);
   openDialog(fragment, async () => {
-    await api(`/api/admin/devices/${device.deviceId}/ota`, {
-      method: "POST",
-      body: { applicationVersion: target.applicationVersion },
-    });
-    alert("OTA accepted by the device.");
+    try {
+      status.textContent = "Requesting the Firmware Registry update...";
+      await api(`/api/admin/devices/${device.deviceId}/ota`, {
+        method: "POST",
+        body: { applicationVersion: target.applicationVersion },
+      });
+      await waitForReconnect(device.deviceId, device.connectedSince, status,
+        "Release request accepted. Device downloading and validating; waiting for restart...");
+      otaNotice = { deviceId: device.deviceId, message: "OTA complete: device reconnected and ONLINE." };
+      await loadDetail(device.deviceId);
+    } catch (error) { throw new Error(otaFriendlyError(error)); }
   }, device.firmware.state === "latest"
     ? "Reinstall current firmware"
     : "Install update");
+}
+
+function otaFriendlyError(error) {
+  const messages = {
+    device_offline: "The device is offline. Wait until it is ONLINE and try again.",
+    http_ota_not_supported: "This device firmware does not support remote OTA.",
+    ota_already_active: "Another firmware update is running. Wait for it to finish.",
+    invalid_ota_upload: "The .bin upload is invalid. Choose the file again and retry.",
+    firmware_exceeds_ota_capacity: "The .bin file exceeds the device's OTA capacity. Choose a smaller file.",
+    firmware_exceeds_device_ota_capacity: "This release exceeds the device's OTA capacity.",
+    device_credential_unavailable: "The device credential is unavailable. Check its registration.",
+    ota_challenge_failed: "The device did not accept the OTA challenge. Check its connection and retry.",
+    invalid_ota_challenge: "The device returned an invalid OTA challenge. Retry after it reconnects.",
+    released_firmware_not_found: "That release is no longer available in the Firmware Registry. Refresh the page.",
+    firmware_registry_unavailable: "The Firmware Registry is unavailable. Try again later.",
+    firmware_too_large: "The firmware exceeds the server size limit. Choose a smaller file.",
+    invalid_firmware_selector: "The selected Registry release is invalid. Refresh the page.",
+  };
+  if (messages[error?.message]) return messages[error.message];
+  if (/^[a-z][a-z0-9_]*$/.test(error?.message || ""))
+    return `Firmware update could not be completed (${error.message}). Please retry.`;
+  return error?.message || "Firmware update could not be completed. Please retry.";
 }
 
 function formatBytes(value) {
@@ -400,7 +436,9 @@ function uploadFirmware(deviceId, file, sha256, status, progress) {
       if (!event.lengthComputable) return;
       const percent = Math.round(event.loaded * 100 / event.total);
       progress.value = percent;
-      status.textContent = `Uploading: ${percent}%`;
+      status.textContent = percent === 100
+        ? "File uploaded to server. Transferring to device and validating..."
+        : `Uploading .bin to server: ${percent}%`;
     });
     request.addEventListener("load", () => {
       let body = {};
@@ -415,8 +453,8 @@ function uploadFirmware(deviceId, file, sha256, status, progress) {
   });
 }
 
-async function waitForReconnect(deviceId, previousConnectedSince, status) {
-  status.textContent = "Firmware validated. Waiting for reboot and reconnection...";
+async function waitForReconnect(deviceId, previousConnectedSince, status, waitingText) {
+  status.textContent = waitingText;
   const deadline = Date.now() + 120000;
   while (Date.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, 2500));
@@ -426,12 +464,15 @@ async function waitForReconnect(deviceId, previousConnectedSince, status) {
         status.textContent = "Device reconnected and ONLINE.";
         return device;
       }
+      if (!device.online) status.textContent = "Device restarting. Waiting for reconnection...";
     } catch {}
   }
-  throw new Error("Firmware was accepted, but the device did not reconnect in time");
+  throw new Error("Firmware was accepted, but the device did not reconnect in time. Check that it is powered on and online.");
 }
 
 function updateFirmware(device) {
+  otaNotice = null;
+  summary.textContent = "";
   const capacity = Number.isSafeInteger(device.otaMaxBytes) ? device.otaMaxBytes : 1048576;
   const capacitySource = Number.isSafeInteger(device.otaMaxBytes)
     ? "reported by this device" : "conservative limit for older firmware";
@@ -444,23 +485,27 @@ function updateFirmware(device) {
     selected.textContent = file ? `${file.name}: ${formatBytes(file.size)}` : "";
   });
   openDialog(node("div", {}, [
-    node("h2", { textContent: `Update firmware — ${device.deviceId}` }),
+    node("h2", { textContent: `Upload your .bin file — ${device.deviceId}` }),
     node("p", { textContent: `OTA capacity: ${formatBytes(capacity)} (${capacitySource}).` }),
     node("label", { textContent: "Firmware (.bin)" }, [fileInput]),
     selected, progress, status,
     node("p", { className: "help", textContent: "The Device Token remains internal and is never requested." }),
   ]), async () => {
-    const file = fileInput.files[0];
-    if (!file) throw new Error("Select a .bin firmware file");
-    if (!file.name.toLowerCase().endsWith(".bin")) throw new Error("Firmware must be a .bin file");
-    if (file.size > capacity) throw new Error(`Firmware exceeds the ${formatBytes(capacity)} OTA capacity`);
-    status.textContent = "Validating firmware (SHA-256)...";
-    const digest = await sha256File(file);
-    status.textContent = "Starting authenticated OTA...";
-    await uploadFirmware(device.deviceId, file, digest, status, progress);
-    await waitForReconnect(device.deviceId, device.connectedSince, status);
-    await loadDetail(device.deviceId);
-  }, "Update firmware");
+    try {
+      const file = fileInput.files[0];
+      if (!file) throw new Error("Select a .bin firmware file");
+      if (!file.name.toLowerCase().endsWith(".bin")) throw new Error("Firmware must be a .bin file");
+      if (file.size > capacity) throw new Error(`Firmware exceeds the ${formatBytes(capacity)} OTA capacity`);
+      status.textContent = "Calculating file SHA-256...";
+      const digest = await sha256File(file);
+      status.textContent = "Starting authenticated OTA...";
+      await uploadFirmware(device.deviceId, file, digest, status, progress);
+      await waitForReconnect(device.deviceId, device.connectedSince, status,
+        "Firmware validated by device. Waiting for restart...");
+      otaNotice = { deviceId: device.deviceId, message: "OTA complete: device reconnected and ONLINE." };
+      await loadDetail(device.deviceId);
+    } catch (error) { throw new Error(otaFriendlyError(error)); }
+  }, "Upload your .bin file");
 }
 
 function changeEnabled(device) {
